@@ -20,6 +20,11 @@ class Thunk<A> {
     ret.value = value;
     return ret;
   }
+
+  public interface Compute<A> { A compute(Void v); }
+  public static <A> Thunk<A> make(final Compute<A> compute) {
+    return new Thunk<A>() { public A compute() { return compute.compute(null); } };
+  }
 }
 
 interface Lambda<ArgT, RetT> {
@@ -49,10 +54,12 @@ class LList<A> {
       : head.toString() + " : " + tail.toString();
   }
 
-  public static <A> Thunk<LList<A>> nil() { return Thunk.ready(new LList<A>(null, null)); }
-  public static <A> Thunk<LList<A>> cons(final Thunk<A> head, final Thunk<LList<A>> tail) { return new Thunk<LList<A>>() { public LList<A> compute() {
-    return new LList<A>(head, tail);
-  }; }; }
+  public static <A> Thunk<LList<A>> nil() {
+    return Thunk.ready(new LList<A>(null, null));
+  }
+  public static <A> Thunk<LList<A>> cons(final Thunk<A> head, final Thunk<LList<A>> tail) {
+    return Thunk.make(__ -> new LList<A>(head, tail));
+  }
 }
 
 public class LazyEvaluator {
@@ -85,9 +92,7 @@ public class LazyEvaluator {
 
     /////////////////////////////////
 
-    Lambda<Integer, Boolean> isEven = new Lambda<Integer, Boolean>() { public Thunk<Boolean> call(Thunk<Integer> x) {
-        return even(x);
-      } };
+    Lambda<Integer, Boolean> isEven = x -> even(x);
 
     Thunk<LList<Integer>> nums = generate(Thunk.ready(0), incrByI(1));
     Thunk<LList<Integer>> evens = filter(isEven, nums);
@@ -102,50 +107,50 @@ public class LazyEvaluator {
     return eq(mod(i, Thunk.ready(2)), Thunk.ready(0));
   }
 
-  static Thunk<Boolean> eq(final Thunk<Integer> a, final Thunk<Integer> b) { return new Thunk<Boolean>() { public Boolean compute() {
+  static Thunk<Boolean> eq(final Thunk<Integer> a, final Thunk<Integer> b) { return Thunk.make(__ -> {
     return a.eval() == b.eval();
-  }; }; }
+  }); }
 
-  static Thunk<Double> sum(final Thunk<LList<Double>> xs) { return new Thunk<Double>() { public Double compute() {
+  static Thunk<Double> sum(final Thunk<LList<Double>> xs) { return Thunk.make(__ -> {
     return xs.eval().isNil()
       ? 0.0
       : xs.eval().head.eval() + sum(xs.eval().tail).eval();
-  }; }; }
+  }); }
 
-  static <A> Thunk<Integer> len(final Thunk<LList<A>> xs) { return new Thunk<Integer>() { public Integer compute() {
+  static <A> Thunk<Integer> len(final Thunk<LList<A>> xs) { return Thunk.make(__ -> {
     return xs.eval().isNil()
       ? 0
       : 1 + len(xs.eval().tail).eval();
-  }; }; }
+  }); }
 
-  static Thunk<Double> avg(final Thunk<LList<Double>> xs) { return new Thunk<Double>() { public Double compute() {
+  static Thunk<Double> avg(final Thunk<LList<Double>> xs) { return Thunk.make(__ ->  {
     final Integer n = len(xs).eval();
     return n == 0
       ? 0.0
       : sum(xs).eval() / n;
-  }; }; }
+  }); }
 
-  static <A> Thunk<A> elemAt(Thunk<Integer> ix, Thunk<LList<A>> xs) {
+  static <A> Thunk<A> elemAt(Thunk<Integer> ix, Thunk<LList<A>> xs) { return Thunk.make(__ -> {
     return ix.eval() == 0
-      ? xs.eval().head
-      : elemAt(Thunk.ready(ix.eval() - 1), xs.eval().tail);
-  }
+      ? xs.eval().head.eval()
+      : elemAt(Thunk.ready(ix.eval() - 1), xs.eval().tail).eval();
+  }); }
 
-  static <A> Thunk<LList<A>> take(final Thunk<Integer> n, final Thunk<LList<A>> xs) { return new Thunk<LList<A>>() { public LList<A> compute() {
+  static <A> Thunk<LList<A>> take(final Thunk<Integer> n, final Thunk<LList<A>> xs) { return Thunk.make(__ -> {
     return n.eval() == 0
       ? new LList<A>(null, null)
       : new LList<A>(xs.eval().head, take(Thunk.ready(n.eval() - 1), xs.eval().tail));
-  }; }; }
+  }); }
 
-  static <A, B> Thunk<LList<B>> map(final Lambda<A, B> f, final Thunk<LList<A>> xs) { return new Thunk<LList<B>>() { public LList<B> compute() {
+  static <A, B> Thunk<LList<B>> map(final Lambda<A, B> f, final Thunk<LList<A>> xs) { return Thunk.make(__ -> {
     return xs.eval().isNil()
       ? new LList<B>(null, null)
       : new LList<B>(f.call(xs.eval().head),
                     map(f, xs.eval().tail));
-  }; }; }
+  }); }
 
   static <A> Thunk<LList<A>> filter(final Lambda<A, Boolean> pred,
-                                final Thunk<LList<A>> xs) { return new Thunk<LList<A>>() { public LList<A> compute() {
+                                    final Thunk<LList<A>> xs) { return Thunk.make(__ -> {
     if (xs.eval().isNil()) {
       return xs.eval();
     } else {
@@ -156,7 +161,7 @@ public class LazyEvaluator {
       else
         return                  filter(pred, tail) .eval();
     }
-  }; }; }
+  }); }
 
   static <A> void printList(final Thunk<LList<A>> xs) {
     if (xs.eval().isNil())
@@ -168,36 +173,32 @@ public class LazyEvaluator {
     }
   }
 
-  static Thunk<Integer> mod(final Thunk<Integer> dividend, final Thunk<Integer> divisor) { return new Thunk<Integer>() { public Integer compute() {
+  static Thunk<Integer> mod(final Thunk<Integer> dividend, final Thunk<Integer> divisor) { return Thunk.make(__ -> {
     return dividend.eval() % divisor.eval();
-  }; }; }
+  }); }
 
-  static Thunk<Boolean> gt(final Thunk<Integer> a, final Thunk<Integer> b) { return new Thunk<Boolean>() { public Boolean compute() {
+  static Thunk<Boolean> gt(final Thunk<Integer> a, final Thunk<Integer> b) { return Thunk.make(__ -> {
     return a.eval() > b.eval();
-  }; }; }
+  }); }
 
-  static Thunk<LList<Integer>> sieve(Thunk<LList<Integer>> xs_) { return new Thunk<LList<Integer>>() { public LList<Integer> compute() {
+  static Thunk<LList<Integer>> sieve(Thunk<LList<Integer>> xs_) { return Thunk.make(__ -> {
     final Thunk<Integer> p   = xs_.eval().head;
     Thunk<LList<Integer>> xs = xs_.eval().tail;
 
-    Lambda<Integer, Boolean> pred = new Lambda<Integer, Boolean>() { public Thunk<Boolean> call(final Thunk<Integer> x) {
-        return gt(mod(x, p), Thunk.ready(0));
-      } };
+    Lambda<Integer, Boolean> pred = x -> gt(mod(x, p), Thunk.ready(0));
 
     return LList.cons(p, sieve(filter(pred, xs))).eval();
-  }; }; }
+  }); }
 
   static Thunk<LList<Integer>> primes() {
     return sieve(generate(Thunk.ready(2), incrByI(1)));
   }
   
   static <A> Thunk<LList<A>> generate(final Thunk<A> seed,
-                                  final Lambda<A, A> next) { return new Thunk<LList<A>>() { public LList<A> compute() {
+                                  final Lambda<A, A> next) { return Thunk.make(__ -> {
     return new LList<A>(seed,
-                       new Thunk<LList<A>>() {
-                         public LList<A> compute() { return generate(next.call(seed), next).eval(); }
-                       });
-   } }; }
+                        Thunk.make(___ -> generate(next.call(seed), next).eval()));
+  }); }
 }
 
 class Unit {
