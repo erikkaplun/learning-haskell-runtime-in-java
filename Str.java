@@ -12,14 +12,7 @@ public final class Str {
     return Thunk.lazy(__ -> s1.eval() + s2.eval() + s3.eval());
   }
 
-  public static Thunk<String> show(Object x) {
-    return Thunk.lazy(__ -> x.toString());
-  }
-
-  public static void print(Thunk<String> str) {
-    System.out.print  (str.eval());
-  }
-  public static void println(Thunk<String> str) {
-    System.out.println(str.eval());
+  public static <A> Thunk<String> show(Thunk<A> x) {
+    return Thunk.lazy(__ -> x.eval().toString());
   }
 }

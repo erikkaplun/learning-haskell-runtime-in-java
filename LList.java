@@ -90,20 +90,20 @@ public class LList<A> {
                       );
   }
 
-  /** Prints a list in a way that printing starts before the list is fully evaluated.
-   * Useful when printing infinite lists -- without laziness, printing an infinite list
-   * ends in an error before nothing even gets printed; `print` however prints at
-   * least something before running out of stack.
-   */
-  static <A> void print(final Thunk<LList<A>> xs) {
-    if (LList.isNil(xs).eval())
-      System.out.println("[]");
-    else {
-      final String str = xs.eval().head.toString();
-      System.out.print(str + " : ");
-      print(xs.eval().tail);
-    }
-  }
+  // /** Prints a list in a way that printing starts before the list is fully evaluated.
+  //  * Useful when printing infinite lists -- without laziness, printing an infinite list
+  //  * ends in an error before nothing even gets printed; `print` however prints at
+  //  * least something before running out of stack.
+  //  */
+  // static <A> void print(final Thunk<LList<A>> xs) {
+  //   if (LList.isNil(xs).eval())
+  //     System.out.println("[]");
+  //   else {
+  //     final String str = xs.eval().head.toString();
+  //     System.out.print(str + " : ");
+  //     print(xs.eval().tail);
+  //   }
+  // }
 
   /** Pretty-printer for lists */
   public static <A> Thunk<String> pretty(Thunk<LList<A>> xs) { return Thunk.lazy(__ -> {

@@ -5,17 +5,17 @@ public class LazyEvaluator {
 
     Thunk<Fn<Integer, Boolean>> isEven = Thunk.ready(x -> even(x));
     Thunk<LList<Integer>> evens = LList.filter(isEven, nums);
-    System.out.println(LList.take(Thunk.ready(3), evens));
+    IO.putStrLn(Str.show(LList.take(Thunk.ready(3), evens)));
 
     Thunk<LList<Integer>> primes_ = primes();
     Thunk<LList<Integer>> doublePrimes = LList.map(mulByI(2), primes_);
-    LList.print(LList.take(Thunk.ready(10), doublePrimes));
+    IO.putStrLn(Str.show(LList.take(Thunk.ready(10), doublePrimes)));
 
     /////////////////////
 
     Thunk<Integer> value =
       If.if_(Thunk.ready(true), Thunk.ready(3), Thunk.ready(4));
-    System.out.println(value);
+    IO.putStrLn(Str.show(value));
 
     // let's demonstrate some currying; here, prepend, a 2-argument function,
     // is applied to just one argument, obtaining a new function:
@@ -23,7 +23,7 @@ public class LazyEvaluator {
       LList.generate(LList.<Integer>nil(),
                      LazyEvaluator.<Integer>prepend(Thunk.ready(1)));
 
-    Str.println(LList.pretty(LList.take(Thunk.ready(10),
+    IO.putStrLn(LList.pretty(LList.take(Thunk.ready(10),
                                         listOfList)));
   };
 

@@ -36,7 +36,4 @@ public class Thunk<A> {
 
   /** a helper interface for Thunk.lazy that should not be used directly */
   public static interface Computation<A> { A compute(Void v); }
-
-  // just for convenience
-  public String toString() { return eval().toString(); }
 }
