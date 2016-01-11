@@ -25,6 +25,18 @@ public class LazyEvaluator {
 
     IO.putStrLn(LList.pretty(LList.take(Thunk.ready(10),
                                         listOfList)));
+
+    ////////////////////
+    // let's build the inifinite list of lists:
+    // [], [0], [0,1], [0,1,2], [0,1,2,3], ...
+
+    Thunk<Fn<Integer, LList<Integer>>> takeNNums =
+      Thunk.ready(x -> LList.take(x, nums));
+
+    Thunk<LList<LList<Integer>>> numsPrefixes =
+      LList.map(takeNNums, nums);
+
+    IO.print(LList.take(Thunk.ready(10), numsPrefixes));
   };
 
   static <A> Thunk<Fn<LList<A>, LList<A>>> prepend(final Thunk<A> x) { return Thunk.ready(
