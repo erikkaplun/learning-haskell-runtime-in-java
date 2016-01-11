@@ -37,33 +37,37 @@ class LList<A> {
     this.head = head;  this.tail = tail;
   }
 
-  public final boolean isEmpty() { return head == null; }
+  public final boolean isNil()  { return head == null; }
+  public final boolean isCons() { return head != null; }
 
+  // this completely bypasses the evaluation engine,
+  // but for the sake of simplicity, let's not take the step
+  // to lazy strings and such.
   public String toString() {
-    return head != null
-      ? head.toString() + " : " + tail.toString()
-      : "[]";
+    return isNil()
+      ? "[]"
+      : head.toString() + " : " + tail.toString();
   }
 
-  public static <A> Thunk<LList<A>> empty() { return Thunk.ready(new LList<A>(null, null)); }
+  public static <A> Thunk<LList<A>> nil() { return Thunk.ready(new LList<A>(null, null)); }
   public static <A> Thunk<LList<A>> cons(final Thunk<A> head, final Thunk<LList<A>> tail) { return new Thunk<LList<A>>() { public LList<A> compute() {
     return new LList<A>(head, tail);
   }; }; }
 }
 
 public class LazyEvaluator {
-  static Lambda<Double, Double> incrByD(final double d) {
-    return new Lambda<Double, Double>() { public Thunk<Double> call(final Thunk<Double> arg) { return Thunk.ready(arg.eval() + d); } };
-  }
-  static Lambda<Double, Double> mulByD(final double factor) {
-    return new Lambda<Double, Double>() { public Thunk<Double> call(final Thunk<Double> arg) { return Thunk.ready(arg.eval() * factor); } };
-  }
-  static Lambda<Integer, Integer> incrByI(final int d) {
-    return new Lambda<Integer, Integer>() { public Thunk<Integer> call(final Thunk<Integer> arg) { return Thunk.ready(arg.eval() + d); } };
-  }
-  static Lambda<Integer, Integer> mulByI(final int factor) {
-    return new Lambda<Integer, Integer>() { public Thunk<Integer> call(final Thunk<Integer> arg) { return Thunk.ready(arg.eval() * factor); } };
-  }
+  static Lambda<Double, Double> incrByD(final double d) { return new Lambda<Double, Double>() { public Thunk<Double> call(final Thunk<Double> arg) {
+    return Thunk.ready(arg.eval() + d);
+  } }; }
+  static Lambda<Double, Double> mulByD(final double factor) { return new Lambda<Double, Double>() { public Thunk<Double> call(final Thunk<Double> arg) {
+    return Thunk.ready(arg.eval() * factor);
+  } }; }
+  static Lambda<Integer, Integer> incrByI(final int d) { return new Lambda<Integer, Integer>() { public Thunk<Integer> call(final Thunk<Integer> arg) {
+      return Thunk.ready(arg.eval() + d);
+  } }; }
+  static Lambda<Integer, Integer> mulByI(final int factor) { return new Lambda<Integer, Integer>() { public Thunk<Integer> call(final Thunk<Integer> arg) {
+    return Thunk.ready(arg.eval() * factor);
+  } }; }
 
   public static void main(String[] args) {
     // Thunk<LList<Double>> nums1 = generate(Thunk.ready(0.0), incrByD(1.0));
@@ -81,7 +85,9 @@ public class LazyEvaluator {
 
     /////////////////////////////////
 
-    Lambda<Integer, Boolean> isEven = new Lambda<Integer, Boolean>() { public Thunk<Boolean> call(Thunk<Integer> x) { return even(x); } };
+    Lambda<Integer, Boolean> isEven = new Lambda<Integer, Boolean>() { public Thunk<Boolean> call(Thunk<Integer> x) {
+        return even(x);
+      } };
 
     Thunk<LList<Integer>> nums = generate(Thunk.ready(0), incrByI(1));
     Thunk<LList<Integer>> evens = filter(isEven, nums);
@@ -101,13 +107,13 @@ public class LazyEvaluator {
   }; }; }
 
   static Thunk<Double> sum(final Thunk<LList<Double>> xs) { return new Thunk<Double>() { public Double compute() {
-    return xs.eval().isEmpty()
+    return xs.eval().isNil()
       ? 0.0
       : xs.eval().head.eval() + sum(xs.eval().tail).eval();
   }; }; }
 
   static <A> Thunk<Integer> len(final Thunk<LList<A>> xs) { return new Thunk<Integer>() { public Integer compute() {
-    return xs.eval().isEmpty()
+    return xs.eval().isNil()
       ? 0
       : 1 + len(xs.eval().tail).eval();
   }; }; }
@@ -132,7 +138,7 @@ public class LazyEvaluator {
   }; }; }
 
   static <A, B> Thunk<LList<B>> map(final Lambda<A, B> f, final Thunk<LList<A>> xs) { return new Thunk<LList<B>>() { public LList<B> compute() {
-    return xs.eval().isEmpty()
+    return xs.eval().isNil()
       ? new LList<B>(null, null)
       : new LList<B>(f.call(xs.eval().head),
                     map(f, xs.eval().tail));
@@ -140,7 +146,7 @@ public class LazyEvaluator {
 
   static <A> Thunk<LList<A>> filter(final Lambda<A, Boolean> pred,
                                 final Thunk<LList<A>> xs) { return new Thunk<LList<A>>() { public LList<A> compute() {
-    if (xs.eval().isEmpty()) {
+    if (xs.eval().isNil()) {
       return xs.eval();
     } else {
       Thunk<A> head        = xs.eval().head;
@@ -153,7 +159,7 @@ public class LazyEvaluator {
   }; }; }
 
   static <A> void printList(final Thunk<LList<A>> xs) {
-    if (xs.eval().isEmpty())
+    if (xs.eval().isNil())
       System.out.println("[]");
     else {
       final String str = xs.eval().head.toString();
