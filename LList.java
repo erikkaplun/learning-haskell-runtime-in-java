@@ -136,9 +136,10 @@ public class LList<A> {
   /** Creates an infinite list of `A` where every value is `next` applied
    * to the previous value.  The first value is `seed`.
    */
-  static <A> Thunk<LList<A>> generate(final Thunk<A> seed,
-                                      final Thunk<Fn<A, A>> next) { return Thunk.lazy(__ -> {
-    return new LList<A>(seed,
-                        Thunk.lazy(___ -> generate(Fn.apply(next, seed), next).eval()));
+  static <A> Thunk<LList<A>> generate(Thunk<A       > seed,
+                                      Thunk<Fn<A, A>> next) { return Thunk.lazy(__ -> {
+    Thunk<A> newSeed = Fn.apply(next, seed);
+
+    return LList.cons(seed, generate(newSeed, next)).eval();
   }); }
 }
