@@ -27,7 +27,7 @@ class Thunk<A> {
   }
 }
 
-interface Lambda<ArgT, RetT> {
+interface Fn<ArgT, RetT> {
   Thunk<RetT> call(final Thunk<ArgT> arg);
 }
 
@@ -63,16 +63,16 @@ class LList<A> {
 }
 
 public class LazyEvaluator {
-  static Lambda<Double, Double> incrByD(final double d) {
+  static Fn<Double, Double> incrByD(final double d) {
     return arg -> Thunk.ready(arg.eval() + d);
   }
-  static Lambda<Double, Double> mulByD(final double factor) {
+  static Fn<Double, Double> mulByD(final double factor) {
     return arg -> Thunk.ready(arg.eval() * factor);
   }
-  static Lambda<Integer, Integer> incrByI(final int d) {
+  static Fn<Integer, Integer> incrByI(final int d) {
     return arg ->Thunk.ready(arg.eval() + d);
   }
-  static Lambda<Integer, Integer> mulByI(final int factor) {
+  static Fn<Integer, Integer> mulByI(final int factor) {
     return arg -> Thunk.ready(arg.eval() * factor);
   }
 
@@ -92,7 +92,7 @@ public class LazyEvaluator {
 
     /////////////////////////////////
 
-    Lambda<Integer, Boolean> isEven = x -> even(x);
+    Fn<Integer, Boolean> isEven = x -> even(x);
 
     Thunk<LList<Integer>> nums = generate(Thunk.ready(0), incrByI(1));
     Thunk<LList<Integer>> evens = filter(isEven, nums);
@@ -142,14 +142,14 @@ public class LazyEvaluator {
       : new LList<A>(xs.eval().head, take(Thunk.ready(n.eval() - 1), xs.eval().tail));
   }); }
 
-  static <A, B> Thunk<LList<B>> map(final Lambda<A, B> f, final Thunk<LList<A>> xs) { return Thunk.make(__ -> {
+  static <A, B> Thunk<LList<B>> map(final Fn<A, B> f, final Thunk<LList<A>> xs) { return Thunk.make(__ -> {
     return xs.eval().isNil()
       ? new LList<B>(null, null)
       : new LList<B>(f.call(xs.eval().head),
                     map(f, xs.eval().tail));
   }); }
 
-  static <A> Thunk<LList<A>> filter(final Lambda<A, Boolean> pred,
+  static <A> Thunk<LList<A>> filter(final Fn<A, Boolean> pred,
                                     final Thunk<LList<A>> xs) { return Thunk.make(__ -> {
     if (xs.eval().isNil()) {
       return xs.eval();
@@ -185,7 +185,7 @@ public class LazyEvaluator {
     final Thunk<Integer> p   = xs_.eval().head;
     Thunk<LList<Integer>> xs = xs_.eval().tail;
 
-    Lambda<Integer, Boolean> pred = x -> gt(mod(x, p), Thunk.ready(0));
+    Fn<Integer, Boolean> pred = x -> gt(mod(x, p), Thunk.ready(0));
 
     return LList.cons(p, sieve(filter(pred, xs))).eval();
   }); }
@@ -195,7 +195,7 @@ public class LazyEvaluator {
   }
   
   static <A> Thunk<LList<A>> generate(final Thunk<A> seed,
-                                  final Lambda<A, A> next) { return Thunk.make(__ -> {
+                                      final Fn<A, A> next) { return Thunk.make(__ -> {
     return new LList<A>(seed,
                         Thunk.make(___ -> generate(next.call(seed), next).eval()));
   }); }
