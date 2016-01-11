@@ -16,11 +16,24 @@ public class LazyEvaluator {
     Thunk<Integer> value =
       If.if_(Thunk.ready(true), Thunk.ready(3), Thunk.ready(4));
     System.out.println(value);
+
+    // let's demonstrate some currying; here, prepend, a 2-argument function,
+    // is applied to just one argument, obtaining a new function:
+    Thunk<LList<LList<Integer>>> listOfList =
+      LList.generate(LList.<Integer>nil(),
+                     LazyEvaluator.<Integer>prepend(Thunk.ready(1)));
+
+    Str.println(LList.pretty(LList.take(Thunk.ready(10),
+                                        listOfList)));
   };
 
-  static Fn<Double, Double> incrByD(final double d) { return arg -> Thunk.ready(arg.eval() + d); }
-  static Fn<Double, Double> mulByD(final double factor) { return arg -> Thunk.ready(arg.eval() * factor); }
-  static Fn<Integer, Integer> incrByI(final int d) { return arg ->Thunk.ready(arg.eval() + d); }
+  static <A> Thunk<Fn<LList<A>, LList<A>>> prepend(final Thunk<A> x) { return Thunk.ready(
+     xs -> LList.cons(x, xs)
+  ); }
+
+  static Thunk<Fn<Double, Double>> incrByD(final double d) { return Thunk.ready(arg -> Thunk.ready(arg.eval() + d)); }
+  static Thunk<Fn<Double, Double>> mulByD(final double factor) { return Thunk.ready(arg -> Thunk.ready(arg.eval() * factor)); }
+  static Thunk<Fn<Integer, Integer>> incrByI(final int d) { return Thunk.ready(arg ->Thunk.ready(arg.eval() + d)); }
   static Thunk<Fn<Integer, Integer>> mulByI(final int factor) { return Thunk.ready(arg -> Thunk.ready(arg.eval() * factor)); }
 
   static Thunk<Boolean> even(final Thunk<Integer> i) {

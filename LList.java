@@ -48,9 +48,7 @@ public class LList<A> {
   // but for the sake of simplicity, let's not take the step
   // to lazy strings and such (yet).
   public String toString() {
-    return LList.isNil(Thunk.ready(this)).eval()
-      ? "[]"
-      : head.toString() + " : " + tail.toString();
+    return LList.pretty(Thunk.ready(this)).eval();
   }
 
   static <A> Thunk<Integer> len(final Thunk<LList<A>> xs) {
@@ -107,12 +105,30 @@ public class LList<A> {
     }
   }
 
+  /** Pretty-printer for lists */
+  public static <A> Thunk<String> pretty(Thunk<LList<A>> xs) { return Thunk.lazy(__ -> {
+    return Str.append(Thunk.ready("["),
+                      _pretty(xs),
+                      Thunk.ready("]")).eval();
+  }); }
+  private static <A> Thunk<String> _pretty(Thunk<LList<A>> xs) { return Thunk.lazy(__ -> {
+    Thunk<LList<A>> tail = LList.tail(xs);
+    Thunk<String> subPretty = _pretty(tail);
+    return If.if_(LList.isNil(xs),
+         /*then*/ Thunk.ready(""),
+         /*else*/ Str.append(Str.show(LList.head(xs)),
+                             If.if_(LList.isNil(tail),
+                                    Thunk.ready(""),
+                                    Str.append(Thunk.ready(","),
+                                               subPretty)))).eval();
+  }); }
+
   /** Creates an infinite list of `A` where every value is `next` applied
    * to the previous value.  The first value is `seed`.
    */
   static <A> Thunk<LList<A>> generate(final Thunk<A> seed,
-                                      final Fn<A, A> next) { return Thunk.lazy(__ -> {
+                                      final Thunk<Fn<A, A>> next) { return Thunk.lazy(__ -> {
     return new LList<A>(seed,
-                        Thunk.lazy(___ -> generate(next.call(seed), next).eval()));
+                        Thunk.lazy(___ -> generate(Fn.apply(next, seed), next).eval()));
   }); }
 }
