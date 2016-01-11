@@ -22,8 +22,8 @@ class Thunk<A> {
   }
 }
 
-abstract class Lambda<ArgT, RetT> {
-  public abstract Thunk<RetT> call(final Thunk<ArgT> arg);
+interface Lambda<ArgT, RetT> {
+  Thunk<RetT> call(final Thunk<ArgT> arg);
 }
 
 /** Linked List; the Haskell
