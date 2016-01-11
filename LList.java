@@ -63,11 +63,9 @@ public class LList<A> {
       : elemAt(Thunk.ready(ix.eval() - 1), xs.eval().tail).eval();
   }); }
 
-  static <A> Thunk<LList<A>> take(final Thunk<Integer> n, final Thunk<LList<A>> xs) { return Thunk.lazy(__ -> {
-    return n.eval() == 0
-      ? new LList<A>(null, null)
-      : new LList<A>(xs.eval().head, take(Thunk.ready(n.eval() - 1), xs.eval().tail));
-  }); }
+  static <A> Thunk<LList<A>> take(final Thunk<Integer> n, final Thunk<LList<A>> xs) {
+    return Fn.apply2(taker(), n, xs);
+  }
 
   /** curried version of take */
   static <A> Thunk<Fn<Integer, Fn<LList<A>, LList<A>>>> taker() {
