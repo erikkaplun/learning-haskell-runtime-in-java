@@ -20,8 +20,8 @@ public class LazyEvaluator {
     // let's demonstrate some currying; here, prepend, a 2-argument function,
     // is applied to just one argument, obtaining a new function:
     Thunk<LList<LList<Integer>>> listOfList =
-      LList.generate(LList.<Integer>nil(),
-                     LazyEvaluator.<Integer>prepend(Thunk.ready(1)));
+      LList.generate(LList.nil(),
+                     prepend(Thunk.ready(1)));
 
     IO.putStrLn(LList.pretty(LList.take(Thunk.ready(10),
                                         listOfList)));
