@@ -56,18 +56,18 @@ class LList<A> {
 }
 
 public class LazyEvaluator {
-  static Lambda<Double, Double> incrByD(final double d) { return new Lambda<Double, Double>() { public Thunk<Double> call(final Thunk<Double> arg) {
-    return Thunk.ready(arg.eval() + d);
-  } }; }
-  static Lambda<Double, Double> mulByD(final double factor) { return new Lambda<Double, Double>() { public Thunk<Double> call(final Thunk<Double> arg) {
-    return Thunk.ready(arg.eval() * factor);
-  } }; }
-  static Lambda<Integer, Integer> incrByI(final int d) { return new Lambda<Integer, Integer>() { public Thunk<Integer> call(final Thunk<Integer> arg) {
-      return Thunk.ready(arg.eval() + d);
-  } }; }
-  static Lambda<Integer, Integer> mulByI(final int factor) { return new Lambda<Integer, Integer>() { public Thunk<Integer> call(final Thunk<Integer> arg) {
-    return Thunk.ready(arg.eval() * factor);
-  } }; }
+  static Lambda<Double, Double> incrByD(final double d) {
+    return arg -> Thunk.ready(arg.eval() + d);
+  }
+  static Lambda<Double, Double> mulByD(final double factor) {
+    return arg -> Thunk.ready(arg.eval() * factor);
+  }
+  static Lambda<Integer, Integer> incrByI(final int d) {
+    return arg ->Thunk.ready(arg.eval() + d);
+  }
+  static Lambda<Integer, Integer> mulByI(final int factor) {
+    return arg -> Thunk.ready(arg.eval() * factor);
+  }
 
   public static void main(String[] args) {
     // Thunk<LList<Double>> nums1 = generate(Thunk.ready(0.0), incrByD(1.0));
