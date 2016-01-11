@@ -48,17 +48,9 @@ public class LazyEvaluator {
     Thunk<LList<LList<Integer>>> numsIncremented =
       LList.map(incrNumsBy, nums);
 
-    // this is our first venture into 2-argument Fn's;
-    // when encoding 2-argument functions as Fn, we need to use nested Fn's,
-    // so that a function `(a, b) -> c` is "smoothened" to `a -> b -> c`, as in Haskell.
-    // later on, we'll make it easi(er) to work with such structores.
-    // This is called currying (after Haskell Curry).
-    Thunk<Fn<Integer, Fn<LList<Integer>, LList<Integer>>>> taker =
-      Thunk.ready(n -> Thunk.ready(xs -> LList.take(n, xs)));
-
     // let's take 10 of each infinite nested list, and then 10 of the top-level list.
     IO.print(LList.take(Thunk.ready(10),
-                        LList.map(Fn.apply(taker, Thunk.ready(10)),
+                        LList.map(Fn.apply(LList.taker(), Thunk.ready(10)),
                                   numsIncremented)));
   };
 

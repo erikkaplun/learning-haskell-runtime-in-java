@@ -69,6 +69,18 @@ public class LList<A> {
       : new LList<A>(xs.eval().head, take(Thunk.ready(n.eval() - 1), xs.eval().tail));
   }); }
 
+  /** curried version of take */
+  static <A> Thunk<Fn<Integer, Fn<LList<A>, LList<A>>>> taker() {
+    return Thunk.ready(n -> Thunk.ready(xs -> {
+      return If.if_(Fn.apply2(Eq.eqI(), n, Thunk.ready(0)),
+             /*then*/ LList.nil(),
+             /*else*/ LList.cons(LList.head(xs),
+                                 Fn.apply2(taker(),
+                                           Fn.apply2(Num.subtract(), n, Thunk.ready(1)), // n - 1
+                                           xs)));
+    }));
+  }
+
   static <A, B> Thunk<LList<B>> map(final Thunk<Fn<A, B>> f, final Thunk<LList<A>> xs) {
     return If.if_(LList.isNil(xs),
                   LList.<B>nil(),
