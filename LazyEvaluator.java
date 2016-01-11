@@ -5,11 +5,11 @@ public class LazyEvaluator {
 
     Thunk<Fn<Integer, Boolean>> isEven = Thunk.ready(x -> even(x));
     Thunk<LList<Integer>> evens = LList.filter(isEven, nums);
-    IO.print(LList.take(Thunk.ready(3), evens));
+    IO.print(Fn.apply2(LList.take(), Thunk.ready(3), evens));
 
     Thunk<LList<Integer>> primes_ = primes();
     Thunk<LList<Integer>> doublePrimes = LList.map(mulByI(Thunk.ready(2)), primes_);
-    IO.print(LList.take(Thunk.ready(10), doublePrimes));
+    IO.print(Fn.apply2(LList.take(), Thunk.ready(10), doublePrimes));
 
     /////////////////////
 
@@ -23,20 +23,21 @@ public class LazyEvaluator {
       LList.generate(LList.nil(),
                      prepend(Thunk.ready(1)));
 
-    IO.putStrLn(LList.pretty(LList.take(Thunk.ready(10),
-                                        listOfList)));
+    IO.putStrLn(LList.pretty(Fn.apply2(LList.take(),
+                                       Thunk.ready(10),
+                                       listOfList)));
 
     ////////////////////
     // let's build the inifinite list of lists:
     // [], [0], [0,1], [0,1,2], [0,1,2,3], ...
 
     Thunk<Fn<Integer, LList<Integer>>> takeNNums =
-      Thunk.ready(x -> LList.take(x, nums));
+      Thunk.ready(x -> Fn.apply2(LList.take(), x, nums));
 
     Thunk<LList<LList<Integer>>> numsPrefixes =
       LList.map(takeNNums, nums);
 
-    IO.print(LList.take(Thunk.ready(10), numsPrefixes));
+    IO.print(Fn.apply2(LList.take(), Thunk.ready(10), numsPrefixes));
 
     /////////////////////
     // let's build the infinite list of infinite lists:

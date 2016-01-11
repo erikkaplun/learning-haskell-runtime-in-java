@@ -63,19 +63,15 @@ public class LList<A> {
       : elemAt(Thunk.ready(ix.eval() - 1), xs.eval().tail).eval();
   }); }
 
-  static <A> Thunk<LList<A>> take(final Thunk<Integer> n, final Thunk<LList<A>> xs) {
-    return Fn.apply2(taker(), n, xs);
-  }
-
-  /** curried version of take */
-  static <A> Thunk<Fn<Integer, Fn<LList<A>, LList<A>>>> taker() {
+  /** take first `n` elements of a list */
+  static <A> Thunk<Fn<Integer, Fn<LList<A>, LList<A>>>> take() {
     return Thunk.ready(n -> Thunk.ready(xs -> {
       return If.if_(Fn.apply2(Eq.eqI(), n, Thunk.ready(0)),
-             /*then*/ LList.nil(),
-             /*else*/ LList.cons(LList.head(xs),
-                                 Fn.apply2(taker(),
-                                           Fn.apply2(Num.subtract(), n, Thunk.ready(1)), // n - 1
-                                           xs)));
+                    /*then*/ LList.nil(),
+                    /*else*/ LList.cons(LList.head(xs),
+                                        Fn.apply2(take(),
+                                                  Fn.apply2(Num.subtract(), n, Thunk.ready(1)),
+                                                  LList.tail(xs))));
     }));
   }
 
