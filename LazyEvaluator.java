@@ -17,8 +17,8 @@ public class LazyEvaluator {
       If.if_(Thunk.ready(true), Thunk.ready(3), Thunk.ready(4));
     IO.print(value);
 
-    // let's demonstrate some currying; here, prepend, a 2-argument function,
-    // is applied to just one argument, obtaining a new function:
+    /////////////////////
+
     Thunk<LList<LList<Integer>>> listOfList =
       LList.generate(LList.nil(),
                      prepend(Thunk.ready(1)));
