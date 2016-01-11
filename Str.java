@@ -12,6 +12,7 @@ public final class Str {
     return Thunk.lazy(__ -> s1.eval() + s2.eval() + s3.eval());
   }
 
+  /** A naive "port" of the Haskell Show type class */
   public static <A> Thunk<String> show(Thunk<A> x) {
     return Thunk.lazy(__ -> x.eval().toString());
   }
