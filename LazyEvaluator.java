@@ -1,14 +1,14 @@
 public class LazyEvaluator {
   public static void main(String[] args) {
-    Thunk<LList<Integer>> nums = LList.generate(Thunk.ready(0), incrByI(1));
-    Thunk<LList<Integer>> dblNums = LList.map(mulByI(2), nums);
+    Thunk<LList<Integer>> nums = LList.generate(Thunk.ready(0), incrByI(Thunk.ready(1)));
+    Thunk<LList<Integer>> dblNums = LList.map(mulByI(Thunk.ready(2)), nums);
 
     Thunk<Fn<Integer, Boolean>> isEven = Thunk.ready(x -> even(x));
     Thunk<LList<Integer>> evens = LList.filter(isEven, nums);
     IO.print(LList.take(Thunk.ready(3), evens));
 
     Thunk<LList<Integer>> primes_ = primes();
-    Thunk<LList<Integer>> doublePrimes = LList.map(mulByI(2), primes_);
+    Thunk<LList<Integer>> doublePrimes = LList.map(mulByI(Thunk.ready(2)), primes_);
     IO.print(LList.take(Thunk.ready(10), doublePrimes));
 
     /////////////////////
@@ -37,16 +37,39 @@ public class LazyEvaluator {
       LList.map(takeNNums, nums);
 
     IO.print(LList.take(Thunk.ready(10), numsPrefixes));
+
+    /////////////////////
+    // let's build the infinite list of infinite lists:
+    // [0,1,2...], [1,2,3...], [2,3,4...], [3,4,5...], ...
+
+    Thunk<Fn<Integer, LList<Integer>>> incrNumsBy =
+      Thunk.ready(x -> LList.map(incrByI(x), nums));
+
+    Thunk<LList<LList<Integer>>> numsIncremented =
+      LList.map(incrNumsBy, nums);
+
+    // this is our first venture into 2-argument Fn's;
+    // when encoding 2-argument functions as Fn, we need to use nested Fn's,
+    // so that a function `(a, b) -> c` is "smoothened" to `a -> b -> c`, as in Haskell.
+    // later on, we'll make it easi(er) to work with such structores.
+    // This is called currying (after Haskell Curry).
+    Thunk<Fn<Integer, Fn<LList<Integer>, LList<Integer>>>> taker =
+      Thunk.ready(n -> Thunk.ready(xs -> LList.take(n, xs)));
+
+    // let's take 10 of each infinite nested list, and then 10 of the top-level list.
+    IO.print(LList.take(Thunk.ready(10),
+                        LList.map(Fn.apply(taker, Thunk.ready(10)),
+                                  numsIncremented)));
   };
 
   static <A> Thunk<Fn<LList<A>, LList<A>>> prepend(final Thunk<A> x) { return Thunk.ready(
      xs -> LList.cons(x, xs)
   ); }
 
-  static Thunk<Fn<Double, Double>> incrByD(final double d) { return Thunk.ready(arg -> Thunk.ready(arg.eval() + d)); }
-  static Thunk<Fn<Double, Double>> mulByD(final double factor) { return Thunk.ready(arg -> Thunk.ready(arg.eval() * factor)); }
-  static Thunk<Fn<Integer, Integer>> incrByI(final int d) { return Thunk.ready(arg ->Thunk.ready(arg.eval() + d)); }
-  static Thunk<Fn<Integer, Integer>> mulByI(final int factor) { return Thunk.ready(arg -> Thunk.ready(arg.eval() * factor)); }
+  static Thunk<Fn<Double, Double>> incrByD(final Thunk<Double> d) { return Thunk.ready(arg -> Thunk.ready(arg.eval() + d.eval())); }
+  static Thunk<Fn<Double, Double>> mulByD(final Thunk<Double> factor) { return Thunk.ready(arg -> Thunk.ready(arg.eval() * factor.eval())); }
+  static Thunk<Fn<Integer, Integer>> incrByI(final Thunk<Integer> d) { return Thunk.ready(arg ->Thunk.ready(arg.eval() + d.eval())); }
+  static Thunk<Fn<Integer, Integer>> mulByI(final Thunk<Integer> factor) { return Thunk.ready(arg -> Thunk.ready(arg.eval() * factor.eval())); }
 
   static Thunk<Boolean> even(final Thunk<Integer> i) {
     return eq(mod(i, Thunk.ready(2)), Thunk.ready(0));
@@ -78,7 +101,7 @@ public class LazyEvaluator {
   }); }
 
   static Thunk<LList<Integer>> primes() {
-    return sieve(LList.generate(Thunk.ready(2), incrByI(1)));
+    return sieve(LList.generate(Thunk.ready(2), incrByI(Thunk.ready(1))));
   }
   static Thunk<LList<Integer>> sieve(Thunk<LList<Integer>> xs_) { return Thunk.lazy(__ -> {
     final Thunk<Integer>  p  = LList.head(xs_);
