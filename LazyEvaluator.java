@@ -79,13 +79,16 @@ public class LazyEvaluator {
 
   static Thunk<Fn<Integer, Boolean>>
   even() { return Thunk.ready(i ->
-    eq(mod(i, Thunk.ready(2)),
-       Thunk.ready(0))
+    Fn.apply2(eq(),
+              mod(i, Thunk.ready(2)),
+              Thunk.ready(0))
   ); }
 
-  static Thunk<Boolean> eq(final Thunk<Integer> a, final Thunk<Integer> b) { return Thunk.lazy(__ -> {
-    return a.eval() == b.eval();
-  }); }
+  static
+  Thunk<Fn<Integer, Fn<Integer, Boolean>>>
+  eq() { return Thunk.ready(a -> Thunk.ready(b -> Thunk.lazy(__ ->
+    a.eval() == b.eval()
+  ))); }
 
   static Thunk<Double> sum(final Thunk<LList<Double>> xs) {
     return If.if_(Fn.apply(LList.isNil(), xs),
