@@ -3,9 +3,9 @@ public class LazyEvaluator {
     IO.putStrLn(Thunk.ready("let's demonstrate generating, mapping and filtering of lists:"));
     Thunk<LList<Integer>> nums    = Fn.apply2(LList.generate(), 
                                               Thunk.ready(0),
-                                              incrByI(Thunk.ready(1)));
+                                              Fn.apply(incrByI(), Thunk.ready(1)));
     Thunk<LList<Integer>> dblNums = Fn.apply2(LList.map(),
-                                              mulByI(Thunk.ready(2)), 
+                                              Fn.apply(mulByI(), Thunk.ready(2)),
                                               nums);
 
     Thunk<LList<Integer>> evens = Fn.apply2(LList.filter(), even(), nums);
@@ -13,7 +13,9 @@ public class LazyEvaluator {
 
     IO.putStrLn(Thunk.ready("let's demonstrate generating an infinite sequence of primes"));
     Thunk<LList<Integer>> primes_ = primes();
-    Thunk<LList<Integer>> doublePrimes = Fn.apply2(LList.map(), mulByI(Thunk.ready(2)), primes_);
+    Thunk<LList<Integer>> doublePrimes = Fn.apply2(LList.map(),
+                                                   Fn.apply(mulByI(), Thunk.ready(2)),
+                                                   primes_);
     IO.print(Fn.apply2(LList.take(), Thunk.ready(10), doublePrimes));
 
     /////////////////////
@@ -59,7 +61,7 @@ public class LazyEvaluator {
     // [0,1,2...], [1,2,3...], [2,3,4...], [3,4,5...], ...
 
     Thunk<Fn<Integer, LList<Integer>>> incrNumsBy =
-      Thunk.ready(x -> Fn.apply2(LList.map(), incrByI(x), nums));
+      Thunk.ready(x -> Fn.apply2(LList.map(), Fn.apply(incrByI(), x), nums));
 
     Thunk<LList<LList<Integer>>> numsIncremented =
       Fn.apply2(LList.map(), incrNumsBy, nums);
@@ -72,10 +74,28 @@ public class LazyEvaluator {
                                 numsIncremented)));
   };
 
-  static Thunk<Fn< Double,  Double>> incrByD(final Thunk<Double > d     ) { return Fn.apply(Num.addD(), d     ); }
-  static Thunk<Fn< Double,  Double>> mulByD (final Thunk<Double > factor) { return Fn.apply(Num.mulD(), factor); }
-  static Thunk<Fn<Integer, Integer>> incrByI(final Thunk<Integer> d     ) { return Fn.apply(Num.addI(), d     ); }
-  static Thunk<Fn<Integer, Integer>> mulByI (final Thunk<Integer> factor) { return Fn.apply(Num.mulI(), factor); }
+  static
+  Thunk<Fn<Double, Fn<Double, Double>>>
+  incrByD() {
+    return Num.addD();
+  }
+  static
+  Thunk<Fn<Double, Fn<Double, Double>>>
+  mulByD() {
+    return Num.mulD();
+  }
+
+  static
+  Thunk<Fn<Integer, Fn<Integer, Integer>>>
+  incrByI() {
+    return Num.addI();
+  }
+
+  static
+  Thunk<Fn<Integer, Fn<Integer, Integer>>>
+  mulByI() { 
+    return Num.mulI();
+  }
 
   static Thunk<Fn<Integer, Boolean>>
   even() { return Thunk.ready(i ->
@@ -124,7 +144,7 @@ public class LazyEvaluator {
    primes() {
     return Fn.apply(sieve(),
                     Fn.apply2(LList.generate(),
-                              Thunk.ready(2), incrByI(Thunk.ready(1))));
+                              Thunk.ready(2), Fn.apply(incrByI(), Thunk.ready(1))));
   }
   static
   Thunk<Fn<LList<Integer>, LList<Integer>>>
