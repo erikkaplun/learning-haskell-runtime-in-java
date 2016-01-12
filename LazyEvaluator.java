@@ -1,5 +1,6 @@
 public class LazyEvaluator {
   public static void main(String[] args) {
+    IO.putStrLn(Thunk.ready("let's demonstrate generating, mapping and filtering of lists:"));
     Thunk<LList<Integer>> nums = LList.generate(Thunk.ready(0), incrByI(Thunk.ready(1)));
     Thunk<LList<Integer>> dblNums = LList.map(mulByI(Thunk.ready(2)), nums);
 
@@ -7,17 +8,20 @@ public class LazyEvaluator {
     Thunk<LList<Integer>> evens = LList.filter(isEven, nums);
     IO.print(Fn.apply2(LList.take(), Thunk.ready(3), evens));
 
+    IO.putStrLn(Thunk.ready("let's demonstrate generating an infinite sequence of primes"));
     Thunk<LList<Integer>> primes_ = primes();
     Thunk<LList<Integer>> doublePrimes = LList.map(mulByI(Thunk.ready(2)), primes_);
     IO.print(Fn.apply2(LList.take(), Thunk.ready(10), doublePrimes));
 
     /////////////////////
+    IO.putStrLn(Thunk.ready("let's demonstrate the if function:"));
 
     Thunk<Integer> value =
       If.if_(Thunk.ready(true), Thunk.ready(3), Thunk.ready(4));
     IO.print(value);
 
     /////////////////////
+    IO.putStrLn(Thunk.ready("let's build an inifinite, but boring list of lists:"));
 
     Thunk<LList<LList<Integer>>> listOfList =
       LList.generate(LList.nil(),
@@ -28,7 +32,7 @@ public class LazyEvaluator {
                                        listOfList)));
 
     ////////////////////
-    // let's build the inifinite list of lists:
+    IO.putStrLn(Thunk.ready("let's build another inifinite, slightly less boring list of lists:"));
     // [], [0], [0,1], [0,1,2], [0,1,2,3], ...
 
     Thunk<Fn<Integer, LList<Integer>>> takeNNums =
@@ -40,7 +44,8 @@ public class LazyEvaluator {
     IO.print(Fn.apply2(LList.take(), Thunk.ready(10), numsPrefixes));
 
     /////////////////////
-    // let's build the infinite list of infinite lists:
+    IO.putStr  (Thunk.ready("let's build another inifinite list, but this "));
+    IO.putStrLn(Thunk.ready("time each of its elements is in turn another infinite list:"));
     // [0,1,2...], [1,2,3...], [2,3,4...], [3,4,5...], ...
 
     Thunk<Fn<Integer, LList<Integer>>> incrNumsBy =
