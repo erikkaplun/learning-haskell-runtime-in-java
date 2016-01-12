@@ -97,7 +97,7 @@ public class LList<A> {
   /*else*/ Fn.apply2(LList.cons(),
                      Fn.apply(LList.head(), xs),
                      Fn.apply2(take(),
-                               Fn.apply2(Num.subtract(), n, Thunk.ready(1)),
+                               Fn.apply2(Num.subtractI(), n, Thunk.ready(1)),
                                Fn.apply(LList.tail(), xs))))
   )); }
 

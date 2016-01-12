@@ -2,7 +2,7 @@
  */
 public final class Num {
   /** curried addition of integers */
-  public static Thunk<Fn<Integer, Fn<Integer, Integer>>> add() {
+  public static Thunk<Fn<Integer, Fn<Integer, Integer>>> addI() {
     return Thunk.ready(x ->
                        Thunk.ready(y ->
                                    Thunk.lazy(__ -> x.eval() + y.eval())
@@ -11,7 +11,7 @@ public final class Num {
   }
 
   /** curried subtraction of integers */
-  public static Thunk<Fn<Integer, Fn<Integer, Integer>>> subtract() {
+  public static Thunk<Fn<Integer, Fn<Integer, Integer>>> subtractI() {
     return Thunk.ready(x ->
                        Thunk.ready(y ->
                                    Thunk.lazy(__ -> x.eval() - y.eval())
@@ -20,7 +20,7 @@ public final class Num {
   }
 
   /** curried multiplication of integers */
-  public static Thunk<Fn<Integer, Fn<Integer, Integer>>> mul() {
+  public static Thunk<Fn<Integer, Fn<Integer, Integer>>> mulI() {
     return Thunk.ready(x ->
                        Thunk.ready(y ->
                                    Thunk.lazy(__ -> x.eval() * y.eval())
