@@ -2,7 +2,7 @@ public class LazyEvaluator {
   public static void main(String[] args) {
     IO.putStrLn(Thunk.ready("let's demonstrate generating, mapping and filtering of lists:"));
     Thunk<LList<Integer>> nums = LList.generate(Thunk.ready(0), incrByI(Thunk.ready(1)));
-    Thunk<LList<Integer>> dblNums = LList.map(mulByI(Thunk.ready(2)), nums);
+    Thunk<LList<Integer>> dblNums = Fn.apply2(LList.map(), mulByI(Thunk.ready(2)), nums);
 
     Thunk<Fn<Integer, Boolean>> isEven = Thunk.ready(x -> even(x));
     Thunk<LList<Integer>> evens = LList.filter(isEven, nums);
@@ -10,7 +10,7 @@ public class LazyEvaluator {
 
     IO.putStrLn(Thunk.ready("let's demonstrate generating an infinite sequence of primes"));
     Thunk<LList<Integer>> primes_ = primes();
-    Thunk<LList<Integer>> doublePrimes = LList.map(mulByI(Thunk.ready(2)), primes_);
+    Thunk<LList<Integer>> doublePrimes = Fn.apply2(LList.map(), mulByI(Thunk.ready(2)), primes_);
     IO.print(Fn.apply2(LList.take(), Thunk.ready(10), doublePrimes));
 
     /////////////////////
@@ -39,7 +39,7 @@ public class LazyEvaluator {
       Thunk.ready(x -> Fn.apply2(LList.take(), x, nums));
 
     Thunk<LList<LList<Integer>>> numsPrefixes =
-      LList.map(takeNNums, nums);
+      Fn.apply2(LList.map(), takeNNums, nums);
 
     IO.print(Fn.apply2(LList.take(), Thunk.ready(10), numsPrefixes));
 
@@ -49,16 +49,17 @@ public class LazyEvaluator {
     // [0,1,2...], [1,2,3...], [2,3,4...], [3,4,5...], ...
 
     Thunk<Fn<Integer, LList<Integer>>> incrNumsBy =
-      Thunk.ready(x -> LList.map(incrByI(x), nums));
+      Thunk.ready(x -> Fn.apply2(LList.map(), incrByI(x), nums));
 
     Thunk<LList<LList<Integer>>> numsIncremented =
-      LList.map(incrNumsBy, nums);
+      Fn.apply2(LList.map(), incrNumsBy, nums);
 
     // let's take 10 of each infinite nested list, and then 10 of the top-level list.
     IO.print(Fn.apply2(LList.take(),
                        Thunk.ready(10),
-                       LList.map(Fn.apply(LList.take(), Thunk.ready(10)),
-                                 numsIncremented)));
+                       Fn.apply2(LList.map(),
+                                Fn.apply(LList.take(), Thunk.ready(10)),
+                                numsIncremented)));
   };
 
   static <A> Thunk<Fn<LList<A>, LList<A>>> prepend(final Thunk<A> x) { return Thunk.ready(
