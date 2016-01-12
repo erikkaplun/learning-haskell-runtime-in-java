@@ -55,19 +55,20 @@ public class LazyEvaluator {
       LList.map(incrNumsBy, nums);
 
     // let's take 10 of each infinite nested list, and then 10 of the top-level list.
-    IO.print(LList.take(Thunk.ready(10),
-                        LList.map(Fn.apply(LList.taker(), Thunk.ready(10)),
-                                  numsIncremented)));
+    IO.print(Fn.apply2(LList.take(),
+                       Thunk.ready(10),
+                       LList.map(Fn.apply(LList.take(), Thunk.ready(10)),
+                                 numsIncremented)));
   };
 
   static <A> Thunk<Fn<LList<A>, LList<A>>> prepend(final Thunk<A> x) { return Thunk.ready(
      xs -> LList.cons(x, xs)
   ); }
 
-  static Thunk<Fn<Double, Double>> incrByD(final Thunk<Double> d) { return Thunk.ready(arg -> Thunk.ready(arg.eval() + d.eval())); }
-  static Thunk<Fn<Double, Double>> mulByD(final Thunk<Double> factor) { return Thunk.ready(arg -> Thunk.ready(arg.eval() * factor.eval())); }
-  static Thunk<Fn<Integer, Integer>> incrByI(final Thunk<Integer> d) { return Thunk.ready(arg ->Thunk.ready(arg.eval() + d.eval())); }
-  static Thunk<Fn<Integer, Integer>> mulByI(final Thunk<Integer> factor) { return Thunk.ready(arg -> Thunk.ready(arg.eval() * factor.eval())); }
+  static Thunk<Fn<Double, Double>> incrByD(final Thunk<Double> d) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() + d.eval())); }
+  static Thunk<Fn<Double, Double>> mulByD(final Thunk<Double> factor) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() * factor.eval())); }
+  static Thunk<Fn<Integer, Integer>> incrByI(final Thunk<Integer> d) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() + d.eval())); }
+  static Thunk<Fn<Integer, Integer>> mulByI(final Thunk<Integer> factor) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() * factor.eval())); }
 
   static Thunk<Boolean> even(final Thunk<Integer> i) {
     return eq(mod(i, Thunk.ready(2)), Thunk.ready(0));
