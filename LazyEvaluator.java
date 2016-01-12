@@ -80,7 +80,7 @@ public class LazyEvaluator {
   static Thunk<Fn<Integer, Boolean>>
   even() { return Thunk.ready(i ->
     Fn.apply2(eq(),
-              mod(i, Thunk.ready(2)),
+              Fn.apply2(mod(), i, Thunk.ready(2)),
               Thunk.ready(0))
   ); }
 
@@ -107,9 +107,11 @@ public class LazyEvaluator {
       : Fn.apply(sum(), xs).eval() / n;
   })); }
 
-  static Thunk<Integer> mod(final Thunk<Integer> dividend, final Thunk<Integer> divisor) { return Thunk.lazy(__ -> {
-    return dividend.eval() % divisor.eval();
-  }); }
+  static
+  Thunk<Fn<Integer, Fn<Integer, Integer>>>
+  mod() { return Thunk.ready(dividend -> Thunk.ready(divisor -> Thunk.lazy(__ ->
+    dividend.eval() % divisor.eval()
+  ))); }
 
   static Thunk<Boolean> gt(final Thunk<Integer> a, final Thunk<Integer> b) { return Thunk.lazy(__ -> {
     return a.eval() > b.eval();
@@ -123,7 +125,8 @@ public class LazyEvaluator {
     final Thunk<Integer>  p  = Fn.apply(LList.head(), xs_);
     Thunk<LList<Integer>> xs = Fn.apply(LList.tail(), xs_);
 
-    Thunk<Fn<Integer, Boolean>> pred = Thunk.ready(x -> gt(mod(x, p), Thunk.ready(0)));
+    Thunk<Fn<Integer, Boolean>> pred = Thunk.ready(x -> gt(Fn.apply2(mod(), x, p),
+                                                           Thunk.ready(0)));
 
     return Fn.apply2(LList.cons(), 
                      p, 
