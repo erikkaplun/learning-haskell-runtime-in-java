@@ -29,7 +29,7 @@ public class LazyEvaluator {
     Thunk<LList<LList<Integer>>> listOfList =
       Fn.apply2(LList.generate(), 
                 LList.nil(),
-                prepend(Thunk.ready(1)));
+                Fn.apply(prepend(), Thunk.ready(1)));
 
     IO.putStrLn(Fn.apply(LList.pretty(),
                          Fn.apply2(LList.take(),
@@ -67,10 +67,11 @@ public class LazyEvaluator {
                                 numsIncremented)));
   };
 
-  static <A> Thunk<Fn<LList<A>, LList<A>>>
-  prepend(final Thunk<A> x) { return Thunk.ready(xs -> 
+  static <A>
+  Thunk<Fn<A, Fn<LList<A>, LList<A>>>>
+  prepend() { return Thunk.ready(x -> Thunk.ready(xs ->
     Fn.apply2(LList.cons(), x, xs)
-  ); }
+  )); }
 
   static Thunk<Fn<Double, Double>> incrByD(final Thunk<Double> d) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() + d.eval())); }
   static Thunk<Fn<Double, Double>> mulByD(final Thunk<Double> factor) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() * factor.eval())); }
