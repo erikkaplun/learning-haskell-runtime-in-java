@@ -8,8 +8,7 @@ public class LazyEvaluator {
                                               mulByI(Thunk.ready(2)), 
                                               nums);
 
-    Thunk<Fn<Integer, Boolean>> isEven = Thunk.ready(x -> even(x));
-    Thunk<LList<Integer>> evens = Fn.apply2(LList.filter(), isEven, nums);
+    Thunk<LList<Integer>> evens = Fn.apply2(LList.filter(), even(), nums);
     IO.print(Fn.apply2(LList.take(), Thunk.ready(3), evens));
 
     IO.putStrLn(Thunk.ready("let's demonstrate generating an infinite sequence of primes"));
@@ -78,9 +77,11 @@ public class LazyEvaluator {
   static Thunk<Fn<Integer, Integer>> incrByI(final Thunk<Integer> d) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() + d.eval())); }
   static Thunk<Fn<Integer, Integer>> mulByI(final Thunk<Integer> factor) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() * factor.eval())); }
 
-  static Thunk<Boolean> even(final Thunk<Integer> i) {
-    return eq(mod(i, Thunk.ready(2)), Thunk.ready(0));
-  }
+  static Thunk<Fn<Integer, Boolean>>
+  even() { return Thunk.ready(i ->
+    eq(mod(i, Thunk.ready(2)),
+       Thunk.ready(0))
+  ); }
 
   static Thunk<Boolean> eq(final Thunk<Integer> a, final Thunk<Integer> b) { return Thunk.lazy(__ -> {
     return a.eval() == b.eval();
