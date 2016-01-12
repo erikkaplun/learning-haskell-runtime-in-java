@@ -79,26 +79,29 @@ public class LList<A> {
   static <A, B>
   Thunk<Fn<Fn<A,B>, Fn<LList<A>, LList<B>>>>
   map() { return Thunk.ready(f -> Thunk.ready(xs ->
-  {
-    return If.if_(LList.isNil(xs),
-                  LList.<B>nil(),
-                  LList.<B>cons(Fn.apply(f, LList.head(xs)),
-                                Fn.apply2(map(), f, LList.tail(xs))));
-  })); }
+    If.if_(LList.isNil(xs),
+  /*then*/ LList.<B>nil(),
+  /*else*/ LList.<B>cons(Fn.apply(f, LList.head(xs)),
+                         Fn.apply2(map(), f, LList.tail(xs))))
+  )); }
 
-  static <A> Thunk<LList<A>> filter(final Thunk<Fn<A, Boolean>> pred,
-                                    final Thunk<LList<A>> xs) {
-        return If.if_(LList.isNil(xs),
-                      xs,
-                      Thunk.lazy(___ -> {
-                          Thunk<A> head        = LList.head(xs);
-                          Thunk<LList<A>> tail = LList.tail(xs);
-                          return If.if_(Fn.apply(pred, head),
-                                        LList.cons(head, filter(pred, tail)),
-                                        filter(pred, tail)).eval();
-                        })
-                      );
-  }
+  // filter :: (a -> Bool) -> [a] -> [a]
+  static <A>
+  Thunk<Fn<Fn<A, Boolean>, Fn<LList<A>, LList<A>>>>
+  filter() { return Thunk.ready(pred -> Thunk.ready(xs ->
+    If.if_(LList.isNil(xs),
+  /*then*/ xs,
+  /*else*/ Thunk.lazy(___ -> {
+               Thunk<A>        head = LList.head(xs);
+               Thunk<LList<A>> tail = LList.tail(xs);
+
+               Thunk<LList<A>> rest = Fn.apply2(filter(), pred, tail);
+               return If.if_(Fn.apply(pred, head),
+                             LList.cons(head, rest),
+                             rest).eval();
+             })
+           )
+  )); }
 
   // /** Prints a list in a way that printing starts before the list is fully evaluated.
   //  * Useful when printing infinite lists -- without laziness, printing an infinite list
