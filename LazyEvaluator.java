@@ -113,9 +113,11 @@ public class LazyEvaluator {
     dividend.eval() % divisor.eval()
   ))); }
 
-  static Thunk<Boolean> gt(final Thunk<Integer> a, final Thunk<Integer> b) { return Thunk.lazy(__ -> {
-    return a.eval() > b.eval();
-  }); }
+  static
+  Thunk<Fn<Integer, Fn<Integer, Boolean>>>
+  gt() { return Thunk.ready(a -> Thunk.ready(b -> Thunk.lazy(__ ->
+    a.eval() > b.eval()
+  ))); }
 
   static Thunk<LList<Integer>> primes() {
     return sieve(Fn.apply2(LList.generate(), 
@@ -125,8 +127,9 @@ public class LazyEvaluator {
     final Thunk<Integer>  p  = Fn.apply(LList.head(), xs_);
     Thunk<LList<Integer>> xs = Fn.apply(LList.tail(), xs_);
 
-    Thunk<Fn<Integer, Boolean>> pred = Thunk.ready(x -> gt(Fn.apply2(mod(), x, p),
-                                                           Thunk.ready(0)));
+    Thunk<Fn<Integer, Boolean>> pred = Thunk.ready(x -> Fn.apply2(gt(),
+                                                                  Fn.apply2(mod(), x, p),
+                                                                  Thunk.ready(0)));
 
     return Fn.apply2(LList.cons(), 
                      p, 
