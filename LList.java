@@ -75,12 +75,16 @@ public class LList<A> {
     }));
   }
 
-  static <A, B> Thunk<LList<B>> map(final Thunk<Fn<A, B>> f, final Thunk<LList<A>> xs) {
+  // map :: (a -> b) -> [a] -> [b]
+  static <A, B>
+  Thunk<Fn<Fn<A,B>, Fn<LList<A>, LList<B>>>>
+  map() { return Thunk.ready(f -> Thunk.ready(xs ->
+  {
     return If.if_(LList.isNil(xs),
                   LList.<B>nil(),
                   LList.<B>cons(Fn.apply(f, LList.head(xs)),
-                                Thunk.lazy(__ -> map(f, LList.tail(xs)).eval())));
-  }
+                                Fn.apply2(map(), f, LList.tail(xs))));
+  })); }
 
   static <A> Thunk<LList<A>> filter(final Thunk<Fn<A, Boolean>> pred,
                                     final Thunk<LList<A>> xs) {
