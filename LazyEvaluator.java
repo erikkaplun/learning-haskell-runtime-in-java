@@ -72,10 +72,10 @@ public class LazyEvaluator {
                                 numsIncremented)));
   };
 
-  static Thunk<Fn<Double, Double>> incrByD(final Thunk<Double> d) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() + d.eval())); }
-  static Thunk<Fn<Double, Double>> mulByD(final Thunk<Double> factor) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() * factor.eval())); }
-  static Thunk<Fn<Integer, Integer>> incrByI(final Thunk<Integer> d) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() + d.eval())); }
-  static Thunk<Fn<Integer, Integer>> mulByI(final Thunk<Integer> factor) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() * factor.eval())); }
+  static Thunk<Fn< Double,  Double>> incrByD(final Thunk<Double > d     ) { return Thunk.ready(arg -> Fn.apply2(Num.addD(), arg, d     )); }
+  static Thunk<Fn< Double,  Double>> mulByD (final Thunk<Double > factor) { return Thunk.ready(arg -> Fn.apply2(Num.mulD(), arg, factor)); }
+  static Thunk<Fn<Integer, Integer>> incrByI(final Thunk<Integer> d     ) { return Thunk.ready(arg -> Fn.apply2(Num.addI(), arg, d     )); }
+  static Thunk<Fn<Integer, Integer>> mulByI (final Thunk<Integer> factor) { return Thunk.ready(arg -> Fn.apply2(Num.mulI(), arg, factor)); }
 
   static Thunk<Fn<Integer, Boolean>>
   even() { return Thunk.ready(i ->
