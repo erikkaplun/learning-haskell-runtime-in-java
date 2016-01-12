@@ -119,21 +119,28 @@ public class LazyEvaluator {
     a.eval() > b.eval()
   ))); }
 
-  static Thunk<LList<Integer>> primes() {
-    return sieve(Fn.apply2(LList.generate(), 
-                           Thunk.ready(2), incrByI(Thunk.ready(1))));
+  static
+  Thunk<LList<Integer>>
+   primes() {
+    return Fn.apply(sieve(),
+                    Fn.apply2(LList.generate(),
+                              Thunk.ready(2), incrByI(Thunk.ready(1))));
   }
-  static Thunk<LList<Integer>> sieve(Thunk<LList<Integer>> xs_) { return Thunk.lazy(__ -> {
-    final Thunk<Integer>  p  = Fn.apply(LList.head(), xs_);
+  static
+  Thunk<Fn<LList<Integer>, LList<Integer>>>
+  sieve() { return Thunk.ready(xs_ -> {
+    Thunk<Integer>        p  = Fn.apply(LList.head(), xs_);
     Thunk<LList<Integer>> xs = Fn.apply(LList.tail(), xs_);
 
-    Thunk<Fn<Integer, Boolean>> pred = Thunk.ready(x -> Fn.apply2(gt(),
-                                                                  Fn.apply2(mod(), x, p),
-                                                                  Thunk.ready(0)));
+    Thunk<Fn<Integer, Boolean>> pred =
+      Thunk.ready(x -> Fn.apply2(gt(),
+                                 Fn.apply2(mod(), x, p),
+                                 Thunk.ready(0)));
 
-    return Fn.apply2(LList.cons(), 
-                     p, 
-                     sieve(Fn.apply2(LList.filter(), pred, xs))).eval();
+    return Fn.apply2(LList.cons(),
+                     p,
+                     Fn.apply(sieve(),
+                              Fn.apply2(LList.filter(), pred, xs)));
   }); }
 }
 
