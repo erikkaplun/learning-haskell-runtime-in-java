@@ -1,8 +1,12 @@
 public class LazyEvaluator {
   public static void main(String[] args) {
     IO.putStrLn(Thunk.ready("let's demonstrate generating, mapping and filtering of lists:"));
-    Thunk<LList<Integer>> nums = LList.generate(Thunk.ready(0), incrByI(Thunk.ready(1)));
-    Thunk<LList<Integer>> dblNums = Fn.apply2(LList.map(), mulByI(Thunk.ready(2)), nums);
+    Thunk<LList<Integer>> nums    = Fn.apply2(LList.generate(), 
+                                              Thunk.ready(0),
+                                              incrByI(Thunk.ready(1)));
+    Thunk<LList<Integer>> dblNums = Fn.apply2(LList.map(),
+                                              mulByI(Thunk.ready(2)), 
+                                              nums);
 
     Thunk<Fn<Integer, Boolean>> isEven = Thunk.ready(x -> even(x));
     Thunk<LList<Integer>> evens = Fn.apply2(LList.filter(), isEven, nums);
@@ -24,12 +28,14 @@ public class LazyEvaluator {
     IO.putStrLn(Thunk.ready("let's build an inifinite, but boring list of lists:"));
 
     Thunk<LList<LList<Integer>>> listOfList =
-      LList.generate(LList.nil(),
-                     prepend(Thunk.ready(1)));
+      Fn.apply2(LList.generate(), 
+                LList.nil(),
+                prepend(Thunk.ready(1)));
 
-    IO.putStrLn(LList.pretty(Fn.apply2(LList.take(),
-                                       Thunk.ready(10),
-                                       listOfList)));
+    IO.putStrLn(Fn.apply(LList.pretty(),
+                         Fn.apply2(LList.take(),
+                                   Thunk.ready(10),
+                                   listOfList)));
 
     ////////////////////
     IO.putStrLn(Thunk.ready("let's build another inifinite, slightly less boring list of lists:"));
@@ -62,8 +68,9 @@ public class LazyEvaluator {
                                 numsIncremented)));
   };
 
-  static <A> Thunk<Fn<LList<A>, LList<A>>> prepend(final Thunk<A> x) { return Thunk.ready(
-     xs -> LList.cons(x, xs)
+  static <A> Thunk<Fn<LList<A>, LList<A>>>
+  prepend(final Thunk<A> x) { return Thunk.ready(xs -> 
+    Fn.apply2(LList.cons(), x, xs)
   ); }
 
   static Thunk<Fn<Double, Double>> incrByD(final Thunk<Double> d) { return Thunk.ready(arg -> Thunk.lazy(__ -> arg.eval() + d.eval())); }
@@ -80,13 +87,13 @@ public class LazyEvaluator {
   }); }
 
   static Thunk<Double> sum(final Thunk<LList<Double>> xs) {
-    return If.if_(LList.isNil(xs),
+    return If.if_(Fn.apply(LList.isNil(), xs),
                   Thunk.ready(0.0),
-                  Thunk.lazy(__ -> LList.head(xs).eval() + sum(LList.tail(xs)).eval()));
+                  Thunk.lazy(__ -> Fn.apply(LList.head(), xs).eval() + sum(Fn.apply(LList.tail(), xs)).eval()));
   }
 
   static Thunk<Double> avg(final Thunk<LList<Double>> xs) { return Thunk.lazy(__ ->  {
-    final Integer n = LList.len(xs).eval();
+    final Integer n = Fn.apply(LList.len(), xs).eval();
     return n == 0
       ? 0.0
       : sum(xs).eval() / n;
@@ -101,15 +108,18 @@ public class LazyEvaluator {
   }); }
 
   static Thunk<LList<Integer>> primes() {
-    return sieve(LList.generate(Thunk.ready(2), incrByI(Thunk.ready(1))));
+    return sieve(Fn.apply2(LList.generate(), 
+                           Thunk.ready(2), incrByI(Thunk.ready(1))));
   }
   static Thunk<LList<Integer>> sieve(Thunk<LList<Integer>> xs_) { return Thunk.lazy(__ -> {
-    final Thunk<Integer>  p  = LList.head(xs_);
-    Thunk<LList<Integer>> xs = LList.tail(xs_);
+    final Thunk<Integer>  p  = Fn.apply(LList.head(), xs_);
+    Thunk<LList<Integer>> xs = Fn.apply(LList.tail(), xs_);
 
     Thunk<Fn<Integer, Boolean>> pred = Thunk.ready(x -> gt(mod(x, p), Thunk.ready(0)));
 
-    return LList.cons(p, sieve(Fn.apply2(LList.filter(), pred, xs))).eval();
+    return Fn.apply2(LList.cons(), 
+                     p, 
+                     sieve(Fn.apply2(LList.filter(), pred, xs))).eval();
   }); }
 }
 
