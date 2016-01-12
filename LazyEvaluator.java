@@ -26,10 +26,15 @@ public class LazyEvaluator {
     /////////////////////
     IO.putStrLn(Thunk.ready("let's build an inifinite, but boring list of lists:"));
 
+    // Although LList.cons is a 2-argument function, we only apply it to 1 argument.
+    // The result is another 1-argument function, which will be  passed into LList.generate:
+    Thunk<Fn<LList<Integer>, LList<Integer>>> prepend1 =
+      Fn.apply(LList.cons(), Thunk.ready(1));
+
     Thunk<LList<LList<Integer>>> listOfList =
       Fn.apply2(LList.generate(), 
                 LList.nil(),
-                Fn.apply(LList.cons(), Thunk.ready(1)));
+                prepend1);
 
     IO.putStrLn(Fn.apply(LList.pretty(),
                          Fn.apply2(LList.take(),
