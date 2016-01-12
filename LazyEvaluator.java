@@ -98,12 +98,14 @@ public class LazyEvaluator {
            Thunk.lazy(__ -> Fn.apply(LList.head(), xs).eval() + Fn.apply(sum(), Fn.apply(LList.tail(), xs)).eval()))
   ); }
 
-  static Thunk<Double> avg(final Thunk<LList<Double>> xs) { return Thunk.lazy(__ ->  {
+  static
+  Thunk<Fn<LList<Double>, Double>>
+  avg() { return Thunk.ready(xs -> Thunk.lazy(__ ->  {
     final Integer n = Fn.apply(LList.len(), xs).eval();
     return n == 0
       ? 0.0
       : Fn.apply(sum(), xs).eval() / n;
-  }); }
+  })); }
 
   static Thunk<Integer> mod(final Thunk<Integer> dividend, final Thunk<Integer> divisor) { return Thunk.lazy(__ -> {
     return dividend.eval() % divisor.eval();
