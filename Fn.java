@@ -45,6 +45,22 @@ public interface Fn<Arg, Ret> {
     return apply(apply(apply(apply(f, a), b), c), d);
   }
 
+  /** Takes a 2-argument function and returnn a new function with the order of
+    * these arguments flipped.
+    *
+    * In Haskell, the type of the function is:
+    *
+    *     flip :: (a -> b -> c) -> (b -> a -> c)
+    */
+  public static <Arg1, Arg2, Ret>
+    Thunk<Fn<Fn<Arg1, Fn<Arg2, Ret>>,
+             Fn<Arg2, Fn<Arg1, Ret>>>>
+  flip() { return Thunk.ready(f ->
+    Thunk.ready(b -> Thunk.ready(a ->
+      Fn.apply2(f, a, b)
+    ))
+  ); }
+
   // this really ought to be private, but interface members are forcibly public,
   // but we can't use a class here because functional interfaces only work
   // with, well, interfaces, and we really need the lambda syntax support for
