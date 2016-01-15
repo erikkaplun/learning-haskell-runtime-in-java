@@ -27,6 +27,9 @@ public class Thunk<A> {
   private                   A  value = null;
   private final Computation<A> computation;
 
+  // we hide the constructors, because want to make the difference in their
+  // meanings explicit via the methods `ready` and `lazy` above.
+
   private Thunk(Computation<A> computation) {
     this.computation = computation;
   }

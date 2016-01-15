@@ -1,4 +1,12 @@
-/** A thunked computation from values of type Arg1 to values of type Ret */
+/** A thunked computation from values of type Arg1 to values of type Ret.
+ *
+ * Not considering potential optimizations and hacks, this is the only place
+ * in the codebase where direct method calls are allowed. Everything else must
+ * use this as the gateway to evaluating the thunked graph.
+ *
+ * Another exception is code that wraps non-Haskell-style code: there, it is
+ * allowed to use Java primitives and method calls, as well as invoke Thunk#eval().
+ */
 public interface Fn<Arg, Ret> {
   public static <Arg, Ret>
     Thunk<Ret> apply(Thunk<Fn<Arg, Ret>> f,
