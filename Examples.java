@@ -97,7 +97,7 @@ public final class Examples {
     //
     // The Haskell code it imitates is:
     //
-    //     fibs = 0 : 1 : zipWith (+) fibs
+    //     fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
     //
     final Ref<Thunk<List<Integer>>> fibs = new Ref<Thunk<List<Integer>>>();
     fibs.ref = // there is no way to make the list self-referential any other way
