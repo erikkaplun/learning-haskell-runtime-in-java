@@ -1,22 +1,22 @@
 public class Examples {
   public static void main(String[] args) {
     IO.putStrLn(Thunk.ready("let's demonstrate generating, mapping and filtering of lists:"));
-    Thunk<LList<Integer>> nums    = Fn.apply2(LList.generate(), 
-                                              Thunk.ready(0),
-                                              Fn.apply(Num.addI(), Thunk.ready(1)));
-    Thunk<LList<Integer>> dblNums = Fn.apply2(LList.map(),
-                                              Fn.apply(Num.mulI(), Thunk.ready(2)),
-                                              nums);
+    Thunk<List<Integer>> nums    = Fn.apply2(List.generate(),
+                                             Thunk.ready(0),
+                                             Fn.apply(Num.addI(), Thunk.ready(1)));
+    Thunk<List<Integer>> dblNums = Fn.apply2(List.map(),
+                                             Fn.apply(Num.mulI(), Thunk.ready(2)),
+                                             nums);
 
-    Thunk<LList<Integer>> evens = Fn.apply2(LList.filter(), even(), nums);
-    IO.print(Fn.apply2(LList.take(), Thunk.ready(3), evens));
+    Thunk<List<Integer>> evens = Fn.apply2(List.filter(), even(), nums);
+    IO.print(Fn.apply2(List.take(), Thunk.ready(3), evens));
 
     IO.putStrLn(Thunk.ready("let's demonstrate generating an infinite sequence of primes"));
-    Thunk<LList<Integer>> primes_ = primes();
-    Thunk<LList<Integer>> doublePrimes = Fn.apply2(LList.map(),
-                                                   Fn.apply(Num.mulI(), Thunk.ready(2)),
-                                                   primes_);
-    IO.print(Fn.apply2(LList.take(), Thunk.ready(10), doublePrimes));
+    Thunk<List<Integer>> primes_ = primes();
+    Thunk<List<Integer>> doublePrimes = Fn.apply2(List.map(),
+                                                  Fn.apply(Num.mulI(), Thunk.ready(2)),
+                                                  primes_);
+    IO.print(Fn.apply2(List.take(), Thunk.ready(10), doublePrimes));
 
     /////////////////////
     IO.putStrLn(Thunk.ready("let's demonstrate the if function:"));
@@ -28,18 +28,18 @@ public class Examples {
     /////////////////////
     IO.putStrLn(Thunk.ready("let's build an inifinite, but boring list of lists:"));
 
-    // Although LList.cons is a 2-argument function, we only apply it to 1 argument.
-    // The result is another 1-argument function, which will be  passed into LList.generate:
-    Thunk<Fn<LList<Integer>, LList<Integer>>> prepend1 =
-      Fn.apply(LList.cons(), Thunk.ready(1));
+    // Although List.cons is a 2-argument function, we only apply it to 1 argument.
+    // The result is another 1-argument function, which will be  passed into List.generate:
+    Thunk<Fn<List<Integer>, List<Integer>>> prepend1 =
+      Fn.apply(List.cons(), Thunk.ready(1));
 
-    Thunk<LList<LList<Integer>>> listOfList =
-      Fn.apply2(LList.generate(), 
-                LList.nil(),
+    Thunk<List<List<Integer>>> listOfList =
+      Fn.apply2(List.generate(),
+                List.nil(),
                 prepend1);
 
-    IO.putStrLn(Fn.apply(LList.pretty(),
-                         Fn.apply2(LList.take(),
+    IO.putStrLn(Fn.apply(List.pretty(),
+                         Fn.apply2(List.take(),
                                    Thunk.ready(10),
                                    listOfList)));
 
@@ -47,31 +47,31 @@ public class Examples {
     IO.putStrLn(Thunk.ready("let's build another inifinite, slightly less boring list of lists:"));
     // [], [0], [0,1], [0,1,2], [0,1,2,3], ...
 
-    Thunk<Fn<Integer, LList<Integer>>> takeNNums =
-      Thunk.ready(x -> Fn.apply2(LList.take(), x, nums));
+    Thunk<Fn<Integer, List<Integer>>> takeNNums =
+      Thunk.ready(x -> Fn.apply2(List.take(), x, nums));
 
-    Thunk<LList<LList<Integer>>> numsPrefixes =
-      Fn.apply2(LList.map(), takeNNums, nums);
+    Thunk<List<List<Integer>>> numsPrefixes =
+      Fn.apply2(List.map(), takeNNums, nums);
 
-    IO.print(Fn.apply2(LList.take(), Thunk.ready(10), numsPrefixes));
+    IO.print(Fn.apply2(List.take(), Thunk.ready(10), numsPrefixes));
 
     /////////////////////
     IO.putStr  (Thunk.ready("let's build another inifinite list, but this "));
     IO.putStrLn(Thunk.ready("time each of its elements is in turn another infinite list:"));
     // [0,1,2...], [1,2,3...], [2,3,4...], [3,4,5...], ...
 
-    Thunk<Fn<Integer, LList<Integer>>> incrNumsBy =
-      Thunk.ready(x -> Fn.apply2(LList.map(), Fn.apply(Num.addI(), x), nums));
+    Thunk<Fn<Integer, List<Integer>>> incrNumsBy =
+      Thunk.ready(x -> Fn.apply2(List.map(), Fn.apply(Num.addI(), x), nums));
 
-    Thunk<LList<LList<Integer>>> numsIncremented =
-      Fn.apply2(LList.map(), incrNumsBy, nums);
+    Thunk<List<List<Integer>>> numsIncremented =
+      Fn.apply2(List.map(), incrNumsBy, nums);
 
     // let's take 10 of each infinite nested list, and then 10 of the top-level list.
-    IO.print(Fn.apply2(LList.take(),
+    IO.print(Fn.apply2(List.take(),
                        Thunk.ready(10),
-                       Fn.apply2(LList.map(),
-                                Fn.apply(LList.take(), Thunk.ready(10)),
-                                numsIncremented)));
+                       Fn.apply2(List.map(),
+                                 Fn.apply(List.take(), Thunk.ready(10)),
+                                 numsIncremented)));
 
     // Let's build the infinite list of all Fibonacci numbers.
     // We use a list that is recursively defined on itself:
@@ -92,24 +92,24 @@ public class Examples {
     //
     //     fibs = 0 : 1 : zipWith (+) fibs
     //
-    final Ref<Thunk<LList<Integer>>> fibs = new Ref<Thunk<LList<Integer>>>();
+    final Ref<Thunk<List<Integer>>> fibs = new Ref<Thunk<List<Integer>>>();
     fibs.ref = // there is no way to make the list self-referential any other way
-      Fn.apply2(LList.cons(),
+      Fn.apply2(List.cons(),
                 Thunk.ready(0),
-                Fn.apply2(LList.cons(),
+                Fn.apply2(List.cons(),
                           Thunk.ready(1),
-                          Fn.apply3(LList.zipWith(),
+                          Fn.apply3(List.zipWith(),
                                     Num.addI(),
                                     Thunk.lazy(__ -> fibs.ref.eval()),
-                                    Fn.apply(LList.tail(), Thunk.lazy(__ -> fibs.ref.eval())))));
+                                    Fn.apply(List.tail(), Thunk.lazy(__ -> fibs.ref.eval())))));
 
     // prints [0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181]
-    IO.print(Fn.apply2(LList.take(),
+    IO.print(Fn.apply2(List.take(),
                        Thunk.ready(20),
                        fibs.ref));
 
     // prints 102334155
-    IO.print(Fn.apply2(LList.elemAt(),
+    IO.print(Fn.apply2(List.elemAt(),
                        // we could go as high as 150000 or higher, but
                        // we'd need to switch to using BigInt, as well as
                        // increasing the JVM stack size to 16MB and higher
@@ -133,17 +133,17 @@ public class Examples {
   ))); }
 
   static
-  Thunk<Fn<LList<Double>, Double>>
+  Thunk<Fn<List<Double>, Double>>
   sum() { return Thunk.ready(xs ->
-    If.if_(Fn.apply(LList.isNil(), xs),
+    If.if_(Fn.apply(List.isNil(), xs),
            Thunk.ready(0.0),
-           Thunk.lazy(__ -> Fn.apply(LList.head(), xs).eval() + Fn.apply(sum(), Fn.apply(LList.tail(), xs)).eval()))
+           Thunk.lazy(__ -> Fn.apply(List.head(), xs).eval() + Fn.apply(sum(), Fn.apply(List.tail(), xs)).eval()))
   ); }
 
   static
-  Thunk<Fn<LList<Double>, Double>>
+  Thunk<Fn<List<Double>, Double>>
   avg() { return Thunk.ready(xs -> Thunk.lazy(__ ->  {
-    final Integer n = Fn.apply(LList.len(), xs).eval();
+    final Integer n = Fn.apply(List.len(), xs).eval();
     return n == 0
       ? 0.0
       : Fn.apply(sum(), xs).eval() / n;
@@ -162,10 +162,10 @@ public class Examples {
   ))); }
 
   static
-  Thunk<LList<Integer>>
+  Thunk<List<Integer>>
    primes() {
-    Thunk<LList<Integer>> intsFrom2 =
-      Fn.apply2(LList.generate(),
+    Thunk<List<Integer>> intsFrom2 =
+      Fn.apply2(List.generate(),
                 Thunk.ready(2),
                 Fn.apply(Num.addI(),
                          Thunk.ready(1)));
@@ -174,20 +174,20 @@ public class Examples {
                     intsFrom2);
   }
   static
-  Thunk<Fn<LList<Integer>, LList<Integer>>>
+  Thunk<Fn<List<Integer>, List<Integer>>>
   sieve() { return Thunk.ready(xs_ -> {
-    Thunk<Integer>        p  = Fn.apply(LList.head(), xs_);
-    Thunk<LList<Integer>> xs = Fn.apply(LList.tail(), xs_);
+    Thunk<Integer>        p = Fn.apply(List.head(), xs_);
+    Thunk<List<Integer>> xs = Fn.apply(List.tail(), xs_);
 
     Thunk<Fn<Integer, Boolean>> pred =
       Thunk.ready(x -> Fn.apply2(gt(),
                                  Fn.apply2(mod(), x, p),
                                  Thunk.ready(0)));
 
-    return Fn.apply2(LList.cons(),
+    return Fn.apply2(List.cons(),
                      p,
                      Fn.apply(sieve(),
-                              Fn.apply2(LList.filter(), pred, xs)));
+                              Fn.apply2(List.filter(), pred, xs)));
   }); }
 }
 
