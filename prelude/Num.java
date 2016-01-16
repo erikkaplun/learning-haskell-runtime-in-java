@@ -1,3 +1,5 @@
+package prelude;
+
 /** arithmetic operations; analogous to the Haskell `Num` type class
  */
 public final class Num {

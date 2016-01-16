@@ -1,3 +1,5 @@
+package prelude;
+
 /** This *is* the lazy evaluator a.k.a. graph reducer.
  *
  * Entire Haskell programs are represented as graphs of Thunks.

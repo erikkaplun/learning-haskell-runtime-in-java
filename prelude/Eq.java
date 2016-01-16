@@ -1,3 +1,5 @@
+package prelude;
+
 public final class Eq {
   /** curried equality of integers */
   public static Thunk<Fn<Integer, Fn<Integer, Boolean>>> eqI() {

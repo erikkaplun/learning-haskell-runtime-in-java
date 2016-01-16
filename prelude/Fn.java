@@ -1,3 +1,5 @@
+package prelude;
+
 /** A thunked computation from values of type Arg1 to values of type Ret.
  *
  * Not considering potential optimizations and hacks, this is the only place

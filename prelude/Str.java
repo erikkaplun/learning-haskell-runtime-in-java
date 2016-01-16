@@ -1,3 +1,5 @@
+package prelude;
+
 public final class Str {
   public static Thunk<String> append(Thunk<String> s1,
                                      Thunk<String> s2)

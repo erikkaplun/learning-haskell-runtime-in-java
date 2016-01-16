@@ -1,3 +1,5 @@
+package prelude;
+
 public final class Bool {
   public static
   Thunk<Fn<Boolean, Fn<Boolean, Boolean>>>

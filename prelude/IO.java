@@ -1,3 +1,5 @@
+package prelude;
+
 /** Contains actions that, in Haskell, would only be allowed to live inside the IO monad */
 public final class IO {
   public static void putStr  (Thunk<String> str) {
