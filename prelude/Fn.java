@@ -13,46 +13,51 @@ import static prelude.Thunk.*;
  */
 public interface Fn<Arg, Ret> {
   public static <Arg, Ret>
-    Thunk<Ret> apply(Thunk<Fn<Arg, Ret>> f,
-                      Thunk<Arg> x)
+  Thunk<Ret>
+  apply(Thunk<Fn<Arg, Ret>> f,
+        Thunk<Arg> x)
   {
     return thunk(__ -> f.eval().apply(x).eval());
   }
 
   /** convenience helper for applying a curried function to 2 arguments */
   public static <Arg1, Arg2, Ret>
-    Thunk<Ret> apply2(Thunk<Fn<Arg1, Fn<Arg2, Ret>>> f,
-                      Thunk<Arg1> a,
-                      Thunk<Arg2> b)
+  Thunk<Ret>
+  apply2(Thunk<Fn<Arg1, Fn<Arg2, Ret>>> f,
+         Thunk<Arg1> a,
+         Thunk<Arg2> b)
   {
     return apply(apply(f, a), b);
   }
 
   public static <Arg1, Arg2, Ret>
-    Thunk<Ret> infix(Thunk<Arg1> a,
-                     Thunk<Fn<Arg1, Fn<Arg2, Ret>>> op,
-                     Thunk<Arg2> b)
+  Thunk<Ret>
+  infix(Thunk<Arg1> a,
+        Thunk<Fn<Arg1, Fn<Arg2, Ret>>> op,
+        Thunk<Arg2> b)
   {
     return apply2(op, a, b);
   }
 
   /** convenience helper for applying a curried function to 3 arguments */
   public static <Arg1, Arg2, Arg3, Ret>
-    Thunk<Ret> apply3(Thunk<Fn<Arg1, Fn<Arg2, Fn<Arg3, Ret>>>> f,
-                      Thunk<Arg1> a,
-                      Thunk<Arg2> b,
-                      Thunk<Arg3> c)
+  Thunk<Ret>
+  apply3(Thunk<Fn<Arg1, Fn<Arg2, Fn<Arg3, Ret>>>> f,
+         Thunk<Arg1> a,
+         Thunk<Arg2> b,
+         Thunk<Arg3> c)
   {
     return apply(apply(apply(f, a), b), c);
   }
 
   /** convenience helper for applying a curried function to 3 arguments */
   public static <Arg1, Arg2, Arg3, Arg4, Ret>
-    Thunk<Ret> apply3(Thunk<Fn<Arg1, Fn<Arg2, Fn<Arg3, Fn<Arg4, Ret>>>>> f,
-                      Thunk<Arg1> a,
-                      Thunk<Arg2> b,
-                      Thunk<Arg3> c,
-                      Thunk<Arg4> d)
+  Thunk<Ret>
+  apply3(Thunk<Fn<Arg1, Fn<Arg2, Fn<Arg3, Fn<Arg4, Ret>>>>> f,
+         Thunk<Arg1> a,
+         Thunk<Arg2> b,
+         Thunk<Arg3> c,
+         Thunk<Arg4> d)
   {
     return apply(apply(apply(apply(f, a), b), c), d);
   }
@@ -65,8 +70,8 @@ public interface Fn<Arg, Ret> {
     *     flip :: (a -> b -> c) -> (b -> a -> c)
     */
   public static <Arg1, Arg2, Ret>
-    Thunk<Fn<Fn<Arg1, Fn<Arg2, Ret>>,
-             Fn<Arg2, Fn<Arg1, Ret>>>>
+  Thunk<  Fn<Fn<Arg1, Fn<Arg2, Ret>>,
+             Fn<Arg2, Fn<Arg1, Ret>>>  >
   flip() { return fn(f -> fn(b -> fn(a ->
       apply2(f, a, b)
   ))); }
