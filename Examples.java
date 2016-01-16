@@ -11,9 +11,9 @@ public final class Examples {
     IO.putStrLn(thunk("let's demonstrate generating, mapping and filtering of lists:"));
     Thunk<List<Integer>> nums    = apply2(iterate(),
                                           thunk(0),
-                                          apply(addI(), thunk(1)));
+                                          infixL(thunk(1), addI()));
     Thunk<List<Integer>> dblNums = apply2(map(),
-                                          apply(mulI(), thunk(2)),
+                                          infixL(thunk(2), mulI()),
                                           nums);
 
     Thunk<List<Integer>> evens = apply2(filter(), even(), nums);
@@ -22,7 +22,7 @@ public final class Examples {
     IO.putStrLn(thunk("let's demonstrate generating an infinite sequence of primes"));
     Thunk<List<Integer>> primes_ = primes();
     Thunk<List<Integer>> doublePrimes = apply2(map(),
-                                               apply(mulI(), thunk(2)),
+                                               infixL(thunk(2), mulI()),
                                                primes_);
     IO.print(apply2(take(), thunk(10), doublePrimes));
 
@@ -38,7 +38,7 @@ public final class Examples {
     // Although cons is a 2-argument function, we only apply it to 1 argument.
     // The result is another 1-argument function, which will be  passed into iterate:
     Thunk<Fn<List<Integer>, List<Integer>>> prepend1 =
-      apply(cons(), thunk(1));
+      infixL(thunk(1), cons());
 
     Thunk<List<List<Integer>>> listOfList =
       apply2(iterate(),
@@ -101,14 +101,14 @@ public final class Examples {
     //
     final Ref<Thunk<List<Integer>>> fibs = new Ref<Thunk<List<Integer>>>();
     fibs.ref = // there is no way to make the list self-referential any other way
-      apply2(cons(),
-             thunk(0),
-             apply2(cons(),
-                    thunk(1),
-                    apply3(zipWith(),
-                           addI(),
-                           thunk(__ -> fibs.ref.eval()),
-                           apply(tail(), thunk(__ -> fibs.ref.eval())))));
+      infix(thunk(0),
+            cons(),
+            infix(thunk(1),
+                  cons(),
+                  apply3(zipWith(),
+                         addI(),
+                         thunk(__ -> fibs.ref.eval()),
+                         apply(tail(), thunk(__ -> fibs.ref.eval())))));
 
     // prints [0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181]
     IO.print(apply2(take(),
@@ -182,9 +182,7 @@ public final class Examples {
     Thunk<List<Integer>> xs = apply(tail(), xs_);
 
     Thunk<Fn<Integer, Boolean>> pred =
-      fn(x -> apply2(gt(),
-                     apply2(mod(), x, p),
-                     thunk(0)));
+      fn(x -> infix(infix(x, mod(), p), gt(), thunk(0)));
 
     return apply2(cons(),
                   p,
