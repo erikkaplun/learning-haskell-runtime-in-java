@@ -1,4 +1,4 @@
-public class Examples {
+public final class Examples {
   public static void main(String[] args) {
     IO.putStrLn(Thunk.ready("let's demonstrate generating, mapping and filtering of lists:"));
     Thunk<List<Integer>> nums    = Fn.apply2(List.generate(),

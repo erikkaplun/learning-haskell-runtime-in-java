@@ -1,4 +1,4 @@
-public class If {
+public final class If {
   /** if_(foo, bar, baz) == bar   iff foo evaluates to true
    *  if_(foo, bar, baz) == bar   iff foo evaluates to false
    *

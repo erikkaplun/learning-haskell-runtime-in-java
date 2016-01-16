@@ -1,4 +1,4 @@
-public class Bool {
+public final class Bool {
   public static
   Thunk<Fn<Boolean, Fn<Boolean, Boolean>>>
   or() { return Thunk.ready(a -> Thunk.ready(b -> Thunk.lazy(__ -> 

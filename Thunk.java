@@ -6,9 +6,9 @@
  * and automatically. It is therefore possible to define a graph without thinking about
  * how large it is, as only a little bit of it will ever be represented in memory at once.
  */
-public class Thunk<A> {
+public final class Thunk<A> {
   /** Returns the value this Thunk wraps. */
-  public final A eval() {
+  public A eval() {
     if (value != null) {
       return value;
     } else {

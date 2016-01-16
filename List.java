@@ -8,7 +8,7 @@
  *
  * and is isomorphic to the built-in Haskell List type.
  */
-public class List<A> {
+public final class List<A> {
   /** The empty list */
   public static <A>
   Thunk<List<A>>
