@@ -184,13 +184,11 @@ public final class List<A> {
    * to the previous value.  The first value is `seed`.
    */
   public static <A>
+  // iterate :: a -> (a -> a) -> [a]
   Thunk<Fn<A, Fn<Fn<A,A>, List<A>>>>
-  generate() { return fn(seed -> fn(next -> {
-    Thunk<A> newSeed = apply(next, seed);
-
-    Thunk<List<A>> rest = apply2(generate(),
-                                 newSeed, next);
-
+  iterate() { return fn(seed -> fn(next -> {
+    Thunk<A>       newSeed = apply(next, seed);
+    Thunk<List<A>> rest    = apply2(iterate(), newSeed, next);
     return apply2(cons(), seed, rest);
   })); }
 

@@ -9,7 +9,7 @@ import static prelude.If.*;
 public final class Examples {
   public static void main(String[] args) {
     IO.putStrLn(thunk("let's demonstrate generating, mapping and filtering of lists:"));
-    Thunk<List<Integer>> nums    = apply2(generate(),
+    Thunk<List<Integer>> nums    = apply2(iterate(),
                                           thunk(0),
                                           apply(addI(), thunk(1)));
     Thunk<List<Integer>> dblNums = apply2(map(),
@@ -36,12 +36,12 @@ public final class Examples {
     IO.putStrLn(thunk("let's build an inifinite, but boring list of lists:"));
 
     // Although cons is a 2-argument function, we only apply it to 1 argument.
-    // The result is another 1-argument function, which will be  passed into generate:
+    // The result is another 1-argument function, which will be  passed into iterate:
     Thunk<Fn<List<Integer>, List<Integer>>> prepend1 =
       apply(cons(), thunk(1));
 
     Thunk<List<List<Integer>>> listOfList =
-      apply2(generate(),
+      apply2(iterate(),
              nil(),
              prepend1);
 
@@ -171,14 +171,9 @@ public final class Examples {
   static
   Thunk<List<Integer>>
    primes() {
-    Thunk<List<Integer>> intsFrom2 =
-      apply2(generate(),
-             thunk(2),
-             apply(addI(),
-                   thunk(1)));
-
-    return apply(sieve(),
-                 intsFrom2);
+    Thunk<List<Integer>>
+    intsFrom2 = apply2(iterate(), thunk(2), apply(addI(), thunk(1)));
+    return apply(sieve(), intsFrom2);
   }
   static
   Thunk<Fn<List<Integer>, List<Integer>>>
