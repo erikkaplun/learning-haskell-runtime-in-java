@@ -12,7 +12,7 @@ public interface Fn<Arg, Ret> {
     Thunk<Ret> apply(Thunk<Fn<Arg, Ret>> f,
                       Thunk<Arg> x)
   {
-    return Thunk.lazy(__ -> f.eval().call(x).eval());
+    return Thunk.lazy(__ -> f.eval().apply(x).eval());
   }
 
   /** convenience helper for applying a curried function to 2 arguments */
@@ -65,5 +65,5 @@ public interface Fn<Arg, Ret> {
   // but we can't use a class here because functional interfaces only work
   // with, well, interfaces, and we really need the lambda syntax support for
   // readability and type inference.
-  Thunk<Ret> call(final Thunk<Arg> arg);
+  Thunk<Ret> apply(final Thunk<Arg> arg);
 }
