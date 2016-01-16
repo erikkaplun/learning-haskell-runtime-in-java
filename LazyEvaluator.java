@@ -72,7 +72,43 @@ public class LazyEvaluator {
                        Fn.apply2(LList.map(),
                                 Fn.apply(LList.take(), Thunk.ready(10)),
                                 numsIncremented)));
+
+    // Let's build the infinite list of all Fibonacci numbers.
+    // We use a list that is recursively defined on itself:
+    // * the first 2 elements in the list are predefined (and we could
+    //   predefine more, but 2 is the minimum)
+    // * the 3rd element is computed from the first 2
+    // * the 4th element is computed from the 2nd and 3rd, etc.
+    //
+    // This works thanks to laziness: by the time we want the nth value,
+    // the (n-1)th and (n-2)th are already available.
+    // Technically, what happens is that the list gets layered on top
+    // of itself, but with one element eliminated from the beginning.
+    // This way, the nth element is matched with the (n-1)th element.
+    // So we obtain a list of pairs. The sum of a pair containing
+    // elements (n-1) and (n-2) is the value of the element n.
+    //
+    // The Haskell code it imitates is:
+    //
+    //     fibs = 0 : 1 : zipWith (+) fibs
+    //
+    final Ref<Thunk<LList<Integer>>> fibs = new Ref<Thunk<LList<Integer>>>();
+    fibs.ref = // there is no way to make the list self-referential any other way
+      Fn.apply2(LList.cons(),
+                Thunk.ready(0),
+                Fn.apply2(LList.cons(),
+                          Thunk.ready(1),
+                          Fn.apply3(LList.zipWith(),
+                                    Num.addI(),
+                                    Thunk.lazy(__ -> fibs.ref.eval()),
+                                    Fn.apply(LList.tail(), Thunk.lazy(__ -> fibs.ref.eval())))));
+
+    IO.print(Fn.apply2(LList.take(),
+                       Thunk.ready(20),
+                       fibs.ref));
   };
+
+  static class Ref<A> { public A ref = null; }
 
   static Thunk<Fn<Integer, Boolean>>
   even() { return Thunk.ready(i ->
