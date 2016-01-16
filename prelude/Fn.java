@@ -30,15 +30,6 @@ public interface Fn<Arg, Ret> {
     return apply(apply(f, a), b);
   }
 
-  public static <Arg1, Arg2, Ret>
-  Thunk<Ret>
-  infix(Thunk<Arg1> a,
-        Thunk<Fn<Arg1, Fn<Arg2, Ret>>> op,
-        Thunk<Arg2> b)
-  {
-    return apply2(op, a, b);
-  }
-
   /** convenience helper for applying a curried function to 3 arguments */
   public static <Arg1, Arg2, Arg3, Ret>
   Thunk<Ret>
@@ -61,6 +52,32 @@ public interface Fn<Arg, Ret> {
   {
     return apply(apply(apply(apply(f, a), b), c), d);
   }
+
+  public static <Arg1, Arg2, Ret>
+  Thunk<Ret>
+  infix(Thunk<Arg1> a,
+        Thunk<Fn<Arg1, Fn<Arg2, Ret>>> op,
+        Thunk<Arg2> b)
+  {
+    return apply2(op, a, b);
+  }
+
+  public static <Arg1, Arg2, Ret>
+  Thunk<Ret>
+  infixL(Thunk<Arg1> a,
+         Thunk<Fn<Arg1, Fn<Arg2, Ret>>> op)
+  {
+    return apply(op, a);
+  }
+
+  public static <Arg1, Arg2, Ret>
+  Thunk<Ret>
+  infixR(Thunk<Fn<Arg1, Fn<Arg2, Ret>>> op,
+         Thunk<Arg2> b)
+  {
+    return apply(apply(flip(), op), b);
+  }
+
 
   /** Takes a 2-argument function and returnn a new function with the order of
     * these arguments flipped.
