@@ -228,5 +228,5 @@ public final class List<A> {
   Thunk<  Fn<List<A>,
           Fn<List<B>,
              List<Tuple<A, B>>>>  >
-  zip() { return apply(zipWith(), make()); }
+  zip() { return apply(zipWith(), pair()); }
 }

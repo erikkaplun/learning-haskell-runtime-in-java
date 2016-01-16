@@ -3,7 +3,7 @@ package prelude;
 public final class Tuple<A, B> {
   public static <A, B>
   Thunk<Fn<A, Fn<B, Tuple<A, B>>>>
-  make() { return Thunk.ready(a -> Thunk.ready(b -> Thunk.lazy(__ ->
+  pair() { return Thunk.ready(a -> Thunk.ready(b -> Thunk.lazy(__ ->
     new Tuple<A, B>(a, b)
   ))); }
 
