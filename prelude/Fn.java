@@ -28,6 +28,14 @@ public interface Fn<Arg, Ret> {
     return apply(apply(f, a), b);
   }
 
+  public static <Arg1, Arg2, Ret>
+    Thunk<Ret> infix(Thunk<Arg1> a,
+                     Thunk<Fn<Arg1, Fn<Arg2, Ret>>> op,
+                     Thunk<Arg2> b)
+  {
+    return apply2(op, a, b);
+  }
+
   /** convenience helper for applying a curried function to 3 arguments */
   public static <Arg1, Arg2, Arg3, Ret>
     Thunk<Ret> apply3(Thunk<Fn<Arg1, Fn<Arg2, Fn<Arg3, Ret>>>> f,
