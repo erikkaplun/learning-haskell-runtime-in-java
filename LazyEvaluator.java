@@ -103,8 +103,17 @@ public class LazyEvaluator {
                                     Thunk.lazy(__ -> fibs.ref.eval()),
                                     Fn.apply(LList.tail(), Thunk.lazy(__ -> fibs.ref.eval())))));
 
+    // prints [0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181]
     IO.print(Fn.apply2(LList.take(),
                        Thunk.ready(20),
+                       fibs.ref));
+
+    // prints 102334155
+    IO.print(Fn.apply2(LList.elemAt(),
+                       // we could go as high as 150000 or higher, but
+                       // we'd need to switch to using BigInt, as well as
+                       // increasing the JVM stack size to 16MB and higher
+                       Thunk.ready(40),
                        fibs.ref));
   };
 
