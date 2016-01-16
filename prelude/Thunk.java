@@ -24,6 +24,10 @@ public final class Thunk<A> {
   /** Make a Thunk with a lazily executed computation in it. */
   public static <A> Thunk<A> lazy (Computation<A> x) { return new Thunk<A>(x); }
 
+  public static <A, B> Thunk<Fn<A, B>> fn   (Fn<A, B>       x) { return ready(x); }
+  public static <A>    Thunk<A>        thunk(            A  x) { return ready(x); }
+  public static <A>    Thunk<A>        thunk(Computation<A> x) { return lazy (x); }
+
   ///
 
   private                   A  value = null;

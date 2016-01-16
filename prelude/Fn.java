@@ -1,5 +1,7 @@
 package prelude;
 
+import static prelude.Thunk.*;
+
 /** A thunked computation from values of type Arg1 to values of type Ret.
  *
  * Not considering potential optimizations and hacks, this is the only place
@@ -14,7 +16,7 @@ public interface Fn<Arg, Ret> {
     Thunk<Ret> apply(Thunk<Fn<Arg, Ret>> f,
                       Thunk<Arg> x)
   {
-    return Thunk.lazy(__ -> f.eval().apply(x).eval());
+    return thunk(__ -> f.eval().apply(x).eval());
   }
 
   /** convenience helper for applying a curried function to 2 arguments */
@@ -57,11 +59,9 @@ public interface Fn<Arg, Ret> {
   public static <Arg1, Arg2, Ret>
     Thunk<Fn<Fn<Arg1, Fn<Arg2, Ret>>,
              Fn<Arg2, Fn<Arg1, Ret>>>>
-  flip() { return Thunk.ready(f ->
-    Thunk.ready(b -> Thunk.ready(a ->
-      Fn.apply2(f, a, b)
-    ))
-  ); }
+  flip() { return fn(f -> fn(b -> fn(a ->
+      apply2(f, a, b)
+  ))); }
 
   // this really ought to be private, but interface members are forcibly public,
   // but we can't use a class here because functional interfaces only work

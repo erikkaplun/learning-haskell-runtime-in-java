@@ -1,5 +1,7 @@
 package prelude;
 
+import static prelude.Thunk.*;
+
 public final class If {
   /** if_(foo, bar, baz) == bar   iff foo evaluates to true
    *  if_(foo, bar, baz) == bar   iff foo evaluates to false
@@ -12,6 +14,6 @@ public final class If {
      Thunk<A> v1,
      Thunk<A> v2)
   {
-    return Thunk.lazy(__ -> (cond.eval() ? v1 : v2).eval());
+    return thunk(__ -> (cond.eval() ? v1 : v2).eval());
   }
 }

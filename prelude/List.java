@@ -23,40 +23,40 @@ public final class List<A> {
   /** The empty list */
   public static <A>
   Thunk<List<A>>
-  nil() { return ready(
+  nil() { return thunk(
     new List<A>(null, null)
   ); }
 
   /** Takes the List `tail` and prepends `head` to it, returning a new List */
   public static <A>
   Thunk<Fn<A, Fn<List<A>, List<A>>>>
-  cons() { return ready(x -> ready(xs -> lazy(__ ->
+  cons() { return fn(x -> fn(xs -> lazy(__ ->
      new List<A>(x, xs)
   ))); }
 
   /** Takes the head of a List */
   public static <A>
   Thunk<Fn<List<A>, A>>
-  head() { return ready(xs -> lazy(__ ->
+  head() { return fn(xs -> lazy(__ ->
     xs.eval().head.eval()
   )); }
 
   /** Takes the tail of a List */
   public static <A>
   Thunk<Fn<List<A>, List<A>>>
-  tail() { return ready(xs -> lazy(__ ->
+  tail() { return fn(xs -> lazy(__ ->
     xs.eval().tail.eval()
   )); }
 
   public static <A>
   Thunk<Fn<List<A>, Boolean>>
-  isNil() { return ready(xs -> lazy(__ ->
+  isNil() { return fn(xs -> lazy(__ ->
     xs.eval().head == null
   )); }
 
   public static <A>
   Thunk<Fn<List<A>, Boolean>>
-  isCons() { return ready(xs -> lazy(__ ->
+  isCons() { return fn(xs -> lazy(__ ->
     xs.eval().head != null
   )); }
 
@@ -74,7 +74,7 @@ public final class List<A> {
   public String toString() {
     // this is a Java-land method so Java-values need 
     // to be wrapped:
-    Thunk<List<A>> self = ready(this);
+    Thunk<List<A>> self = thunk(this);
 
     Thunk<String> ret = apply(pretty(), self);
 
@@ -84,39 +84,39 @@ public final class List<A> {
 
   public static <A>
   Thunk<Fn<List<A>, Integer>>
-  len() { return ready(xs ->
+  len() { return fn(xs ->
     if_(apply(isNil(), xs),
-        ready(0),
+        thunk(0),
         lazy(__ -> 1 + apply(len(), xs.eval().tail).eval()))
   ); }
 
   public static <A>
   Thunk<Fn<Integer, Fn<List<A>, A>>>
-  elemAt() { return ready(ix -> ready(xs -> lazy(__ ->
+  elemAt() { return fn(ix -> fn(xs -> lazy(__ ->
     (ix.eval() == 0
      ? xs.eval().head
      : apply2(elemAt(), 
-              ready(ix.eval() - 1),
+              thunk(ix.eval() - 1),
               xs.eval().tail)).eval()
   ))); }
 
   /** take first `n` elements of a list */
   public static <A>
   Thunk<Fn<Integer, Fn<List<A>, List<A>>>>
-  take() { return ready(n -> ready(xs ->
-    if_(apply2(eqI(), n, ready(0)),
+  take() { return fn(n -> fn(xs ->
+    if_(apply2(eqI(), n, thunk(0)),
   /*then*/ nil(),
   /*else*/ apply2(cons(),
                      apply(head(), xs),
                      apply2(take(),
-                               apply2(Num.subtractI(), n, ready(1)),
+                               apply2(Num.subtractI(), n, thunk(1)),
                                apply(tail(), xs))))
   )); }
 
   // map :: (a -> b) -> [a] -> [b]
   public static <A, B>
   Thunk<Fn<Fn<A,B>, Fn<List<A>, List<B>>>>
-  map() { return ready(f -> ready(xs ->
+  map() { return fn(f -> fn(xs ->
     if_(apply(isNil(), xs),
         /*then*/ nil(),
         /*else*/ apply2(cons(),
@@ -127,7 +127,7 @@ public final class List<A> {
   // filter :: (a -> Bool) -> [a] -> [a]
   public static <A>
   Thunk<Fn<Fn<A, Boolean>, Fn<List<A>, List<A>>>>
-  filter() { return ready(pred -> ready(xs ->
+  filter() { return fn(pred -> fn(xs ->
     if_(apply(isNil(), xs),
         /*then*/ xs,
         /*else*/ lazy(___ -> {
@@ -160,23 +160,23 @@ public final class List<A> {
   /** Pretty-printer for lists */
   public static <A>
   Thunk<Fn<List<A>, String>>
-  pretty() { return ready(xs -> lazy(__ ->
-    append(ready("["),
+  pretty() { return fn(xs -> lazy(__ ->
+    append(thunk("["),
            apply(_pretty(), xs),
-           ready("]")).eval()
+           thunk("]")).eval()
   )); }
 
   private static <A>
   Thunk<Fn<List<A>, String>>
-  _pretty() { return ready(xs -> lazy(__ -> {
+  _pretty() { return fn(xs -> lazy(__ -> {
     Thunk<List<A>> tail = apply(tail(), xs);
     Thunk<String> subPretty = apply(_pretty(), tail);
     return if_(apply(isNil(), xs),
-      /*then*/ ready(""),
+      /*then*/ thunk(""),
       /*else*/ append(show(apply(head(), xs)),
                       if_(apply(isNil(), tail),
-                          ready(""),
-                          append(ready(","),
+                          thunk(""),
+                          append(thunk(","),
                                  subPretty)))).eval();
   })); }
 
@@ -185,7 +185,7 @@ public final class List<A> {
    */
   public static <A>
   Thunk<Fn<A, Fn<Fn<A,A>, List<A>>>>
-  generate() { return ready(seed -> ready(next -> {
+  generate() { return fn(seed -> fn(next -> {
     Thunk<A> newSeed = apply(next, seed);
 
     Thunk<List<A>> rest = apply2(generate(),
@@ -200,7 +200,7 @@ public final class List<A> {
           Fn<List<A>,
           Fn<List<B>,
              List<C>>>>  >
-  zipWith() { return ready(f -> ready(xs -> ready(ys ->
+  zipWith() { return fn(f -> fn(xs -> fn(ys ->
     if_(apply2(or(),
                apply(isNil(), xs),
                apply(isNil(), ys)),
