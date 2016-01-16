@@ -183,4 +183,40 @@ public class LList<A> {
     return Fn.apply2(LList.cons(), 
                      seed, rest);
   })); }
+
+  /** zipWith :: [a] -> [b] -> (a -> b -> c) -> [c] */
+  static <A, B, C>
+  Thunk<  Fn<Fn<A, Fn<B, C>>,
+          Fn<LList<A>,
+          Fn<LList<B>,
+             LList<C>>>>  >
+  zipWith() { return Thunk.ready(f -> Thunk.ready(xs -> Thunk.ready(ys ->
+    If.if_(Fn.apply2(Bool.or(),
+                     Fn.apply(LList.isNil(), xs),
+                     Fn.apply(LList.isNil(), ys)),
+           LList.nil(),
+           Thunk.lazy(__ -> {
+               Thunk<C> head =
+                 Fn.apply2(f,
+                           Fn.apply(LList.head(), xs),
+                           Fn.apply(LList.head(), ys));
+
+               Thunk<LList<A>> xsTail = Fn.apply(LList.tail(), xs);
+               Thunk<LList<B>> ysTail = Fn.apply(LList.tail(), ys);
+
+               return Fn.apply2(LList.cons(),
+                                head,
+                                Fn.apply3(zipWith(),
+                                          f,
+                                          xsTail,
+                                          ysTail)).eval();
+             }))
+  ))); }
+
+  /** zip :: [a] -> [b] -> [(a, b)] */
+  static <A, B>
+  Thunk<  Fn<LList<A>,
+          Fn<LList<B>,
+             LList<Tuple<A, B>>>>  >
+  zip() { return Fn.apply(zipWith(), Tuple.make()); }
 }
