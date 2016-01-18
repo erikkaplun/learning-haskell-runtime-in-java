@@ -122,6 +122,10 @@ public final class Examples {
                     // increasing the JVM stack size to 16MB and higher
                     thunk(40),
                     fibs.ref));
+
+    // prints 4.5
+    IO.print(apply(avg(), apply2(take(), thunk(10),
+                                 apply2(map(), fromInteger(), nums))));
   };
 
   static class Ref<A> { public A ref = null; }
@@ -144,17 +148,21 @@ public final class Examples {
   sum() { return fn(xs ->
     if_(apply(isNil(), xs),
         thunk(0.0),
-        thunk(__ -> apply(head(), xs).eval() + apply(sum(), apply(tail(), xs)).eval()))
+        infix(apply(head(), xs),
+              Num.addD(),
+              apply(sum(), apply(tail(), xs))))
   ); }
 
   static
   Thunk<Fn<List<Double>, Double>>
-  avg() { return fn(xs -> lazy(__ ->  {
-    final Integer n = apply(len(), xs).eval();
-    return n == 0
-      ? 0.0
-      : apply(sum(), xs).eval() / n;
-  })); }
+  avg() { return fn(xs -> {
+    Thunk<Integer> n = apply(len(), xs);
+    return if_(infix(thunk(0), eq(), n),
+               thunk(0.0),
+               infix(apply(sum(), xs),
+                     divD(),
+                     apply(fromInteger(), n)));
+  }); }
 
   static
   Thunk<Fn<Integer, Fn<Integer, Integer>>>
