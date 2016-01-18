@@ -63,7 +63,7 @@ public interface Fn<Arg, Ret> {
   }
 
   public static <Arg1, Arg2, Ret>
-  Thunk<Ret>
+  Thunk<Fn<Arg2, Ret>>
   infixL(Thunk<Arg1> a,
          Thunk<Fn<Arg1, Fn<Arg2, Ret>>> op)
   {
@@ -71,11 +71,11 @@ public interface Fn<Arg, Ret> {
   }
 
   public static <Arg1, Arg2, Ret>
-  Thunk<Ret>
+  Thunk<Fn<Arg1, Ret>>
   infixR(Thunk<Fn<Arg1, Fn<Arg2, Ret>>> op,
          Thunk<Arg2> b)
   {
-    return apply(apply(flip(), op), b);
+    return fn(a -> infix(a, op, b));
   }
 
 
