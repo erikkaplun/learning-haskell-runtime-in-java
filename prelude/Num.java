@@ -1,5 +1,7 @@
 package prelude;
 
+import static prelude.Thunk.*;
+
 /** arithmetic operations; analogous to the Haskell `Num` type class
  */
 public final class Num {
@@ -46,4 +48,16 @@ public final class Num {
   mulD() { return Thunk.ready(x -> Thunk.ready(y -> Thunk.lazy(__ ->
     x.eval() * y.eval()
   ))); }
+
+  public static
+  Thunk<Fn<Double, Fn<Double, Double>>>
+  divD() { return fn(x -> fn(y -> thunk(__ ->
+    x.eval() / y.eval()
+  ))); }
+
+  public static
+  Thunk<Fn<Integer, Double>>
+  fromInteger() { return fn(x -> thunk(__ ->
+    (double) x.eval()
+  )); }
 }
